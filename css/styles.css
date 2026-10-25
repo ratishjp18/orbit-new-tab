@@ -20,22 +20,31 @@
   --tile-radius:   24px;
   --tile-font:   0.85rem;
 
-  /* nebula animation durations — overridden for slow/off */
-  --neb1-dur: 18s;
-  --neb2-dur: 22s;
-  --neb3-dur: 15s;
-  --neb4-dur: 17s;
+  /* nebula animation durations — set per speed variant above */
 }
 
 /* --- Animation-speed variants ----------------------------- */
-[data-anim-speed="slow"] {
-  --neb1-dur: 36s;
-  --neb2-dur: 44s;
-  --neb3-dur: 30s;
-  --neb4-dur: 34s;
+/* Root = Fast (default). Normal and Slow override durations. */
+:root {
+  --neb1-dur: 10s;
+  --neb2-dur: 13s;
+  --neb3-dur:  9s;
+  --neb4-dur: 11s;
 }
-[data-anim-speed="off"] .nebula  { animation-play-state: paused !important; }
-[data-anim-speed="off"] #starfield { opacity: 0; }
+
+[data-bg-speed="normal"] {
+  --neb1-dur: 20s;
+  --neb2-dur: 26s;
+  --neb3-dur: 18s;
+  --neb4-dur: 22s;
+}
+
+[data-bg-speed="slow"] {
+  --neb1-dur: 42s;
+  --neb2-dur: 54s;
+  --neb3-dur: 36s;
+  --neb4-dur: 44s;
+}
 
 /* --- Reset ------------------------------------------------ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -121,20 +130,20 @@ body {
 }
 
 @keyframes nebulaFloat1 {
-  from { transform: translate(0,    0   ) scale(1.00) rotate(0deg); }
-  to   { transform: translate(9vw,  7vh ) scale(1.08) rotate(4deg); }
+  from { transform: translate(0,     0   ) scale(1.00) rotate(0deg); }
+  to   { transform: translate(22vw,  14vh) scale(1.14) rotate(7deg); }
 }
 @keyframes nebulaFloat2 {
-  from { transform: translate(0,    0   ) scale(1.00); }
-  to   { transform: translate(-7vw,-9vh ) scale(1.12); }
+  from { transform: translate(0,     0   ) scale(1.00); }
+  to   { transform: translate(-18vw,-18vh) scale(1.20); }
 }
 @keyframes nebulaFloat3 {
-  from { transform: translate(0,    0   ) scale(1.00); }
-  to   { transform: translate(6vw, 10vh ) scale(0.90); }
+  from { transform: translate(0,     0   ) scale(1.00); }
+  to   { transform: translate(15vw,  20vh) scale(0.82); }
 }
 @keyframes nebulaFloat4 {
   from { transform: translate(0,    0  ); }
-  to   { transform: translate(7vw, -6vh); }
+  to   { transform: translate(18vw,-14vh); }
 }
 
 /* ============================================================
@@ -161,31 +170,54 @@ body {
 }
 
 /* ============================================================
-   Main layout — padded container, tiles-grid fills it
+   Main layout — clips pages to viewport
    ============================================================ */
 .main {
   position: fixed;
   inset: 0;
   z-index: 10;
-  padding: 5vh 4vw;
 }
 
 /* ============================================================
-   Tiles grid — 2 equal rows, columns set by JS
+   Pages layout
    ============================================================ */
-.tiles-grid {
+.pages-container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.pages-track {
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+  /* transform: translateY(-N * 100vh) set by JS */
+}
+
+.page {
+  width: 100%;
+  height: 100vh;
+  flex-shrink: 0;
+  padding: 5vh 4vw;
+  box-sizing: border-box;
+}
+
+/* ============================================================
+   Page grid — 2 equal rows, 6 equal columns
+   ============================================================ */
+.page-grid {
   width: 100%;
   height: 100%;
   display: grid;
   grid-template-rows: repeat(2, 1fr);
-  /* grid-template-columns injected inline by renderTiles() */
-  gap: 0; /* spacing comes from tile padding */
+  /* grid-template-columns: repeat(6,1fr) injected by JS */
+  gap: 0;
 }
 
-/* Size variants — only change icon scale, layout is viewport-driven */
-.tiles-grid--medium  { --icon-size: clamp(55px,  9vmin, 110px); }
-.tiles-grid--large   { --icon-size: clamp(68px, 11vmin, 140px); }
-.tiles-grid--xlarge  { --icon-size: clamp(80px, 13vmin, 170px); }
+/* Icon-size scale per size variant */
+.page-grid--medium  { --icon-size: clamp(55px,  9vmin, 110px); }
+.page-grid--large   { --icon-size: clamp(68px, 11vmin, 140px); }
+.page-grid--xlarge  { --icon-size: clamp(80px, 13vmin, 170px); }
 
 /* ============================================================
    Individual tile — fills grid cell, centres icon
@@ -286,6 +318,42 @@ body {
   background: rgb(220, 38, 38);
   transform: scale(1.18);
 }
+
+/* Empty placeholder tile — invisible but holds grid position */
+.tile--empty {
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* ============================================================
+   Page indicator dots — right edge, vertically centred
+   ============================================================ */
+.page-dots {
+  position: fixed;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.page-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.page-dot:hover      { background: rgba(255, 255, 255, 0.50); }
+.page-dot--active    { background: rgba(255, 255, 255, 0.88); transform: scale(1.45); }
 
 /* ============================================================
    Settings toggle button
@@ -425,7 +493,8 @@ body:hover .settings-toggle,
 }
 
 .size-btn,
-.speed-btn {
+.speed-btn,
+.bgspeed-btn {
   flex: 1;
   padding: 7px 8px;
   border-radius: 9px;
@@ -439,13 +508,15 @@ body:hover .settings-toggle,
 }
 
 .size-btn:hover,
-.speed-btn:hover {
+.speed-btn:hover,
+.bgspeed-btn:hover {
   background: rgba(255, 255, 255, 0.12);
   color: rgba(255, 255, 255, 0.90);
 }
 
 .size-btn.active,
-.speed-btn.active {
+.speed-btn.active,
+.bgspeed-btn.active {
   background: rgba(139, 92, 246, 0.30);
   border-color: rgba(139, 92, 246, 0.55);
   color: white;
@@ -535,161 +606,6 @@ body:hover .settings-toggle,
 }
 
 /* ============================================================
-   Folder tile — same grid cell behaviour as regular tile
-   ============================================================ */
-.tile--folder {
-  background:              transparent !important;
-  backdrop-filter:         none        !important;
-  -webkit-backdrop-filter: none        !important;
-  border:                  none        !important;
-  box-shadow:              none        !important;
-}
-
-/* 2×2 mini icon preview — matches icon-wrapper size */
-.folder-mini-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 5px;
-  width:  var(--icon-size, clamp(68px, 11vmin, 140px));
-  height: var(--icon-size, clamp(68px, 11vmin, 140px));
-  padding: 7px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.folder-mini-icon {
-  width: 100%;
-  height: 100%;
-  border-radius: 7px;
-  object-fit: contain;
-  display: block;
-  image-rendering: -webkit-optimize-contrast;
-}
-
-/* ============================================================
-   Back button (shown in folder view)
-   ============================================================ */
-.back-btn {
-  position: fixed;
-  top: 22px;
-  left: 24px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 18px 8px 14px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  color: rgba(255, 255, 255, 0.70);
-  font-size: 0.80rem;
-  font-family: inherit;
-  font-weight: 500;
-  cursor: pointer;
-  z-index: 50;
-  opacity: 0;
-  transform: translateX(-8px);
-  transition: opacity 0.25s ease, transform 0.25s ease,
-              background 0.2s ease, color 0.2s ease;
-  pointer-events: none;
-}
-
-.back-btn.visible {
-  opacity: 1;
-  transform: translateX(0);
-  pointer-events: all;
-}
-
-.back-btn:hover {
-  background: rgba(255, 255, 255, 0.14);
-  color: white;
-}
-
-/* ============================================================
-   Folder modal overlay — kept minimal, no longer used as modal
-   ============================================================ */
-.folder-overlay {
-  position: fixed;
-  inset: 0;
-  background: transparent;
-  z-index: 300;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-}
-
-.folder-overlay.visible {
-  pointer-events: all;
-}
-
-.folder-modal {
-  background: rgba(10, 2, 24, 0.72);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 28px;
-  padding: 28px 32px 32px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 22px;
-  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.45);
-  transform: scale(0.82);
-  opacity: 0;
-  transition:
-    transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1),
-    opacity   0.25s ease;
-}
-
-.folder-overlay.visible .folder-modal {
-  transform: scale(1);
-  opacity: 1;
-}
-
-.folder-modal__title {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.40);
-}
-
-.folder-modal__grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
-  max-width: 360px;
-}
-
-.folder-modal__app {
-  display: block;
-  width: 90px;
-  height: 90px;
-  border-radius: 22px;
-  overflow: hidden;
-  text-decoration: none;
-  flex-shrink: 0;
-  transition: transform 0.26s cubic-bezier(0.34, 1.56, 0.64, 1),
-              box-shadow 0.26s ease;
-}
-
-.folder-modal__app:hover {
-  transform: translateY(-6px) scale(1.08);
-  box-shadow: 0 12px 36px var(--glow-color, rgba(255,255,255,0.2));
-}
-
-.folder-modal__icon {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 22px;
-  display: block;
-}
-
-/* ============================================================
    Reduced motion
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
@@ -703,11 +619,12 @@ body:hover .settings-toggle,
    Responsive
    ============================================================ */
 @media (max-width: 600px) {
-  .main { padding: 3vh 3vw; }
-  .tiles-grid--large { --icon-size: clamp(48px, 12vmin, 90px); }
+  .page { padding: 3vh 3vw; }
+  .page-grid--large { --icon-size: clamp(48px, 12vmin, 90px); }
   .settings-panel { width: 100%; }
+  .page-dots { right: 10px; }
 }
 
 @media (max-height: 480px) {
-  .main { padding: 2vh 3vw; overflow-y: auto; }
+  .page { padding: 2vh 3vw; }
 }

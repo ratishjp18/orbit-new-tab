@@ -1,156 +1,51 @@
 /* ============================================================
    Orbit New Tab — stars.js
-   Animated starfield: twinkling stars, drift, shooting stars,
-   subtle mouse parallax. Pauses when tab is hidden.
+   Delta-time starfield: parallax depth, twinkling, shooting
+   stars, mouse parallax. Pauses on hidden tab.
    ============================================================ */
 
 (function () {
   'use strict';
 
+  /* ============================================================
+     TUNABLE CONSTANTS — change these to adjust the feel
+     ============================================================ */
+  const STAR_COUNT      = 200;   // max stars (keep low for CPU)
+  const STAR_SPEED_BASE = 0.90;  // px per 16 ms at 1× multiplier (~3× old value)
+  const TWINKLE_SPEED   = 0.042; // radians per 16 ms  (~2× old value)
+  const SHOOT_MIN_MS    = 5000;  // min gap between shooting stars
+  const SHOOT_MAX_MS    = 10000; // max gap
+  const MAX_SHOOTING    = 3;     // simultaneous shooting stars
+
+  // Speed multipliers per background-speed setting
+  const SPEED_MULT = {
+    slow:   0.35,
+    normal: 1.00,
+    fast:   2.40   // default
+  };
+  /* ============================================================ */
+
+  const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   const canvas = document.getElementById('starfield');
   const ctx    = canvas.getContext('2d');
 
-  const STAR_COUNT   = 220;
-  const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
   let stars         = [];
   let shootingStars = [];
-  let animationId   = null;
+  let animId        = null;
   let lastTime      = 0;
-  let parallaxX     = 0;
-  let parallaxY     = 0;
-  let targetPX      = 0;
-  let targetPY      = 0;
+  let shootCooldown = 0;
+
+  let parallaxX = 0, parallaxY = 0;
+  let targetPX  = 0, targetPY  = 0;
 
   /* ----------------------------------------------------------
-     Helpers
+     Speed helper — reads live data-bg-speed attribute
   ---------------------------------------------------------- */
-  function animSpeed() {
-    return document.documentElement.dataset.animSpeed || 'normal';
-  }
-
-  function speedFactor() {
-    return animSpeed() === 'slow' ? 0.45 : 1.0;
-  }
-
-  /* ----------------------------------------------------------
-     Star class
-  ---------------------------------------------------------- */
-  class Star {
-    constructor(randomX = true) {
-      this.reset(randomX);
-    }
-
-    reset(randomX = true) {
-      this.x    = randomX ? Math.random() * canvas.width : -2;
-      this.y    = Math.random() * canvas.height;
-      this.size = Math.random() * 1.6 + 0.25;
-
-      // Drift speed — larger stars (closer) drift faster
-      this.speed = (this.size / 1.85) * (Math.random() * 0.28 + 0.14);
-
-      this.baseOpacity  = Math.random() * 0.60 + 0.25;
-      this.opacity      = this.baseOpacity;
-      this.twinkleSpeed = Math.random() * 0.022 + 0.007;
-      this.twinklePhase = Math.random() * Math.PI * 2;
-
-      // Mostly white, ~30% slightly blue/violet
-      const blueish = Math.random() < 0.30;
-      this.hue = blueish ? (Math.random() * 50 + 220) : 0;
-      this.sat = blueish ? 35 : 0;
-    }
-
-    update(dt) {
-      const sf = speedFactor();
-      this.x += this.speed * sf * (dt / 16);
-      this.twinklePhase += this.twinkleSpeed;
-      this.opacity = this.baseOpacity * (0.55 + 0.45 * Math.sin(this.twinklePhase));
-
-      if (this.x > canvas.width + 4) {
-        this.reset(false);
-      }
-    }
-
-    draw() {
-      // Parallax depth: bigger stars move more
-      const depthFactor = this.size / 1.85;
-      const px = this.x + parallaxX * depthFactor * 10;
-      const py = this.y + parallaxY * depthFactor * 10;
-
-      ctx.save();
-      ctx.globalAlpha = Math.min(this.opacity, 1);
-
-      // Soft glow for larger stars
-      if (this.size > 1.1) {
-        ctx.shadowBlur  = 5;
-        ctx.shadowColor = `hsl(${this.hue}, ${this.sat}%, 96%)`;
-      }
-
-      ctx.fillStyle = `hsl(${this.hue}, ${this.sat}%, 96%)`;
-      ctx.beginPath();
-      ctx.arc(px, py, this.size, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-  }
-
-  /* ----------------------------------------------------------
-     ShootingStar class
-  ---------------------------------------------------------- */
-  class ShootingStar {
-    constructor() {
-      this.active = true;
-      this.init();
-    }
-
-    init() {
-      // Start from upper-center area, travel diagonally down-right
-      this.x      = Math.random() * canvas.width  * 0.55 + canvas.width  * 0.1;
-      this.y      = Math.random() * canvas.height * 0.35;
-      this.length = Math.random() * 180 + 90;
-      this.angle  = Math.PI / 4 + (Math.random() - 0.5) * 0.25;
-      this.spd    = Math.random() * 12 + 9;
-      this.life   = 1.0;
-      this.decay  = Math.random() * 0.014 + 0.009;
-    }
-
-    update(dt) {
-      const sf = speedFactor();
-      this.x    += Math.cos(this.angle) * this.spd * sf * (dt / 16);
-      this.y    += Math.sin(this.angle) * this.spd * sf * (dt / 16);
-      this.life -= this.decay;
-      if (this.life <= 0) this.active = false;
-    }
-
-    draw() {
-      if (!this.active) return;
-
-      const tailX = this.x - Math.cos(this.angle) * this.length * this.life;
-      const tailY = this.y - Math.sin(this.angle) * this.length * this.life;
-
-      const grad = ctx.createLinearGradient(tailX, tailY, this.x, this.y);
-      grad.addColorStop(0, 'rgba(255,255,255,0)');
-      grad.addColorStop(1, `rgba(255,255,255,${this.life * 0.9})`);
-
-      ctx.save();
-      ctx.strokeStyle = grad;
-      ctx.lineWidth   = 1.4;
-      ctx.lineCap     = 'round';
-      ctx.beginPath();
-      ctx.moveTo(tailX, tailY);
-      ctx.lineTo(this.x, this.y);
-      ctx.stroke();
-
-      // Bright head dot
-      ctx.globalAlpha = this.life * 0.85;
-      ctx.fillStyle   = 'white';
-      ctx.shadowBlur  = 6;
-      ctx.shadowColor = 'white';
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, 1.8, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
+  function mult() {
+    if (REDUCED_MOTION) return 0.12;
+    const s = document.documentElement.dataset.bgSpeed || 'fast';
+    return SPEED_MULT[s] ?? SPEED_MULT.fast;
   }
 
   /* ----------------------------------------------------------
@@ -162,66 +57,160 @@
   }
 
   /* ----------------------------------------------------------
-     Spawn shooting star at random (~1.5% chance per second)
+     Star
   ---------------------------------------------------------- */
-  let shootingCooldown = 0;
-  const MAX_SHOOTING = 4; // allow several meteors at once
+  class Star {
+    constructor(randomX = true) { this.reset(randomX); }
 
+    reset(randomX = true) {
+      this.x    = randomX ? Math.random() * canvas.width : -2;
+      this.y    = Math.random() * canvas.height;
+      this.size = Math.random() * 1.8 + 0.2;
+
+      // Parallax depth: larger (closer) stars drift faster
+      this.driftSpeed  = STAR_SPEED_BASE * (0.25 + (this.size / 1.8) * 0.75);
+
+      this.baseOpacity  = Math.random() * 0.55 + 0.25;
+      this.opacity      = this.baseOpacity;
+      this.twinklePhase = Math.random() * Math.PI * 2;
+
+      // ~70% white, ~30% faint blue-violet
+      const tinted = Math.random() < 0.30;
+      this.hue = tinted ? (Math.random() * 50 + 220) : 0;
+      this.sat = tinted ? 35 : 0;
+    }
+
+    update(dt) {
+      const m = mult();
+      this.x += this.driftSpeed * m * (dt / 16);
+      this.twinklePhase += TWINKLE_SPEED * m * (dt / 16);
+      this.opacity = this.baseOpacity * (0.50 + 0.50 * Math.sin(this.twinklePhase));
+      if (this.x > canvas.width + 4) this.reset(false);
+    }
+
+    draw() {
+      const depth = this.size / 1.8; // bigger = closer = more parallax
+      const px = this.x + parallaxX * depth * 14;
+      const py = this.y + parallaxY * depth * 14;
+
+      ctx.save();
+      ctx.globalAlpha = Math.min(this.opacity, 1);
+      if (this.size > 1.1) {
+        ctx.shadowBlur  = 5;
+        ctx.shadowColor = `hsl(${this.hue}, ${this.sat}%, 96%)`;
+      }
+      ctx.fillStyle = `hsl(${this.hue}, ${this.sat}%, 96%)`;
+      ctx.beginPath();
+      ctx.arc(px, py, this.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  /* ----------------------------------------------------------
+     Shooting star
+  ---------------------------------------------------------- */
+  class ShootingStar {
+    constructor() {
+      this.active = true;
+      // Random position: upper ~45% of canvas, varied angle ±15° from 45°
+      this.x     = Math.random() * canvas.width  * 0.70 + canvas.width  * 0.05;
+      this.y     = Math.random() * canvas.height * 0.45;
+      this.angle = Math.PI / 4 + (Math.random() - 0.5) * 0.26;
+      this.length = Math.random() * 160 + 80;
+      this.spd   = Math.random() * 16 + 10;
+      this.life  = 1.0;
+      this.decay = Math.random() * 0.011 + 0.007;
+    }
+
+    update(dt) {
+      // Shooting stars keep a minimum speed so they're always visible
+      const m = Math.max(mult(), 0.5);
+      this.x    += Math.cos(this.angle) * this.spd * m * (dt / 16);
+      this.y    += Math.sin(this.angle) * this.spd * m * (dt / 16);
+      this.life -= this.decay * m * (dt / 16);
+      if (this.life <= 0) this.active = false;
+    }
+
+    draw() {
+      if (!this.active) return;
+      const tailX = this.x - Math.cos(this.angle) * this.length * this.life;
+      const tailY = this.y - Math.sin(this.angle) * this.length * this.life;
+
+      const grad = ctx.createLinearGradient(tailX, tailY, this.x, this.y);
+      grad.addColorStop(0, 'rgba(255,255,255,0)');
+      grad.addColorStop(1, `rgba(255,255,255,${this.life * 0.92})`);
+
+      ctx.save();
+      ctx.strokeStyle = grad;
+      ctx.lineWidth   = 1.6;
+      ctx.lineCap     = 'round';
+      ctx.beginPath();
+      ctx.moveTo(tailX, tailY);
+      ctx.lineTo(this.x, this.y);
+      ctx.stroke();
+
+      // Bright head
+      ctx.globalAlpha = this.life * 0.9;
+      ctx.fillStyle   = 'white';
+      ctx.shadowBlur  = 8;
+      ctx.shadowColor = 'white';
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, 1.8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  /* ----------------------------------------------------------
+     Shooting star spawner
+  ---------------------------------------------------------- */
   function maybeShoot(dt) {
     if (REDUCED_MOTION) return;
-    shootingCooldown -= dt;
-    if (shootingCooldown <= 0 && shootingStars.filter(s => s.active).length < MAX_SHOOTING) {
-      // Random wait between 0.6 and 3 seconds
-      shootingCooldown = (Math.random() * 2400 + 600);
+    shootCooldown -= dt;
+    if (shootCooldown <= 0 &&
+        shootingStars.filter(s => s.active).length < MAX_SHOOTING) {
+      shootCooldown = SHOOT_MIN_MS + Math.random() * (SHOOT_MAX_MS - SHOOT_MIN_MS);
       shootingStars.push(new ShootingStar());
     }
   }
 
   /* ----------------------------------------------------------
-     Main animation loop
+     Animation loop (delta-time, frame-rate independent)
   ---------------------------------------------------------- */
-  function animate(timestamp) {
-    if (animSpeed() === 'off') {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      stars.forEach(s => s.draw());
-      return; // stop rAF loop
-    }
+  function animate(ts) {
+    const dt = Math.min(ts - lastTime, 100); // clamp: handles tab suspend
+    lastTime = ts;
 
-    const dt = Math.min(timestamp - lastTime, 100); // clamp to 100 ms
-    lastTime = timestamp;
-
-    // Smooth parallax
+    // Ease parallax target
     parallaxX += (targetPX - parallaxX) * 0.06;
     parallaxY += (targetPY - parallaxY) * 0.06;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Stars
-    stars.forEach(s => { s.update(dt); s.draw(); });
+    if (REDUCED_MOTION) {
+      stars.forEach(s => s.draw()); // static frame
+    } else {
+      stars.forEach(s => { s.update(dt); s.draw(); });
+      maybeShoot(dt);
+      shootingStars = shootingStars.filter(s => s.active);
+      shootingStars.forEach(s => { s.update(dt); s.draw(); });
+    }
 
-    // Shooting stars
-    maybeShoot(dt);
-    shootingStars = shootingStars.filter(s => s.active);
-    shootingStars.forEach(s => { s.update(dt); s.draw(); });
-
-    animationId = requestAnimationFrame(animate);
+    animId = requestAnimationFrame(animate);
   }
 
   /* ----------------------------------------------------------
-     Start / stop
+     Start / stop helpers
   ---------------------------------------------------------- */
   function startLoop() {
-    if (animationId) return;
-    if (REDUCED_MOTION || animSpeed() === 'off') return;
-    lastTime    = performance.now();
-    animationId = requestAnimationFrame(animate);
+    if (animId || REDUCED_MOTION) return;
+    lastTime = performance.now();
+    animId   = requestAnimationFrame(animate);
   }
 
   function stopLoop() {
-    if (animationId) {
-      cancelAnimationFrame(animationId);
-      animationId = null;
-    }
+    if (animId) { cancelAnimationFrame(animId); animId = null; }
   }
 
   /* ----------------------------------------------------------
@@ -229,46 +218,35 @@
   ---------------------------------------------------------- */
   function init() {
     resize();
-    stars = Array.from({ length: STAR_COUNT }, () => new Star());
-    shootingCooldown = Math.random() * 1000 + 500; // first meteor after 0.5-1.5 s
+    stars         = Array.from({ length: STAR_COUNT }, () => new Star());
+    // First shooting star fires sooner (30–60 % into the min gap)
+    shootCooldown = SHOOT_MIN_MS * (0.3 + Math.random() * 0.3);
 
     if (REDUCED_MOTION) {
-      // Draw once, static
       stars.forEach(s => s.draw());
       return;
     }
-
     startLoop();
   }
 
   /* ----------------------------------------------------------
-     Event listeners
+     Events
   ---------------------------------------------------------- */
-  // Pause when tab hidden → save battery
+  // Pause when tab hidden — saves battery
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-      stopLoop();
-    } else {
-      startLoop();
-    }
+    document.hidden ? stopLoop() : startLoop();
   });
 
-  // Respond to animation speed changes from app.js
-  document.addEventListener('orbitAnimSpeedChange', () => {
-    if (animSpeed() === 'off') {
-      stopLoop();
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      stars.forEach(s => s.draw());
-    } else {
-      startLoop();
-    }
+  // Background-speed setting changed by app.js
+  document.addEventListener('orbitBgSpeedChange', () => {
+    startLoop(); // always restart (speed is read live from dataset)
   });
 
   // Mouse parallax
   document.addEventListener('mousemove', (e) => {
-    if (REDUCED_MOTION || animSpeed() === 'off') return;
-    targetPX = (e.clientX / window.innerWidth  - 0.5) * 1.6;
-    targetPY = (e.clientY / window.innerHeight - 0.5) * 1.6;
+    if (REDUCED_MOTION) return;
+    targetPX = (e.clientX / window.innerWidth  - 0.5) * 1.8;
+    targetPY = (e.clientY / window.innerHeight - 0.5) * 1.8;
   });
 
   // Resize

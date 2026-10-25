@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-anim-speed="normal">
+<html lang="en" data-bg-speed="fast">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,10 +8,10 @@
 </head>
 <body>
 
-  <!-- Layer 0: animated starfield -->
+  <!-- Layer 0: starfield -->
   <canvas id="starfield" aria-hidden="true"></canvas>
 
-  <!-- Layer 1: drifting nebula clouds -->
+  <!-- Layer 1: nebula -->
   <div class="nebula-layer" aria-hidden="true">
     <div class="nebula nebula--1"></div>
     <div class="nebula nebula--2"></div>
@@ -19,17 +19,21 @@
     <div class="nebula nebula--4"></div>
   </div>
 
-  <!-- Layer 1: faint corner planet -->
+  <!-- Layer 1: planet -->
   <div class="planet" aria-hidden="true"></div>
 
-  <!-- Layer 2: app tiles -->
+  <!-- Layer 2: pages -->
   <main class="main">
-    <div id="tiles-grid" class="tiles-grid tiles-grid--large" role="list"></div>
+    <div id="pages-container" class="pages-container">
+      <div id="pages-track" class="pages-track"></div>
+    </div>
+    <nav id="page-dots" class="page-dots" aria-label="Page navigation"></nav>
   </main>
 
-  <!-- Settings toggle (hidden until hover) -->
+  <!-- Settings toggle -->
   <button id="settings-toggle" class="settings-toggle" aria-label="Open settings" title="Settings">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <circle cx="12" cy="12" r="3"/>
       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06
                a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09
@@ -44,15 +48,14 @@
   </button>
 
   <!-- Settings panel -->
-  <aside id="settings-panel" class="settings-panel" role="dialog" aria-label="Settings" aria-modal="true">
+  <aside id="settings-panel" class="settings-panel" role="dialog"
+         aria-label="Settings" aria-modal="true">
     <div class="settings-header">
       <h2>Settings</h2>
       <button id="settings-close" class="settings-close" aria-label="Close settings">&#x2715;</button>
     </div>
-
     <div class="settings-body">
 
-      <!-- Tile size -->
       <section class="settings-section">
         <h3>Tile Size</h3>
         <div class="btn-group">
@@ -62,37 +65,15 @@
         </div>
       </section>
 
-      <!-- Animation speed -->
       <section class="settings-section">
-        <h3>Animation</h3>
+        <h3>Background Speed</h3>
         <div class="btn-group">
-          <button class="speed-btn" data-speed="slow">Slow</button>
-          <button class="speed-btn active" data-speed="normal">Normal</button>
-          <button class="speed-btn" data-speed="off">Off</button>
+          <button class="bgspeed-btn" data-bgspeed="slow">Slow</button>
+          <button class="bgspeed-btn" data-bgspeed="normal">Normal</button>
+          <button class="bgspeed-btn active" data-bgspeed="fast">Fast</button>
         </div>
       </section>
 
-      <!-- Edit mode -->
-      <section class="settings-section">
-        <h3>Tiles</h3>
-        <button id="edit-mode-toggle" class="btn-primary">Edit Tiles</button>
-      </section>
-
-      <!-- Add app -->
-      <section class="settings-section">
-        <h3>Add App</h3>
-        <form id="add-app-form" class="add-app-form" novalidate>
-          <input type="text"  id="new-app-name"  placeholder="App name"             required>
-          <input type="url"   id="new-app-url"   placeholder="https://example.com"  required>
-          <div class="add-app-row">
-            <label for="new-app-color">Glow colour</label>
-            <input type="color" id="new-app-color" value="#8b5cf6">
-          </div>
-          <button type="submit" class="btn-primary">Add App</button>
-        </form>
-      </section>
-
-      <!-- Reset -->
       <section class="settings-section">
         <button id="reset-btn" class="btn-danger">Reset to Defaults</button>
       </section>

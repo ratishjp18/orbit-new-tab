@@ -1,427 +1,437 @@
 /* ============================================================
    Orbit New Tab — app.js
-   Tile rendering, settings panel, chrome.storage persistence.
+   Multi-page layout: 2 rows × 6 cols per page.
+   Wheel / keyboard / dot navigation between pages.
    ============================================================ */
 
 (function () {
   'use strict';
 
   /* ----------------------------------------------------------
-     Default app list
+     Constants
   ---------------------------------------------------------- */
-  const DEFAULT_APPS = [
+  const STORAGE_VERSION = 25;
+  const COLS            = 6;           // columns per page
+  const ROWS            = 2;           // rows per page
+  const PAGE_SIZE       = COLS * ROWS; // 12 slots
+  const P1_COUNT        = 12;          // page 1 completely full
+
+  /* ----------------------------------------------------------
+     Page 1 — fixed positions (explicit order)
+     Row 1: Google · Gmail · Twitter · ChatGPT · Gemini · Claude
+     Row 2: Strava · Speedtest · YouTube · GitHub · Apple Music · Incognito
+  ---------------------------------------------------------- */
+  const PAGE1_APPS = [
+    // ── Row 1 ──────────────────────────────────────────────
     {
-      id:        'google',
-      name:      'Google',
-      url:       'https://www.google.com',
-      icon:      'https://logo.clearbit.com/google.com',
+      id: 'google',   name: 'Google',
+      url:  'https://www.google.com',
+      icon: 'https://logo.clearbit.com/google.com',
       glowColor: 'rgba(66, 133, 244, 0.55)'
     },
     {
-      id:        'gmail',
-      name:      'Gmail',
-      url:       'https://mail.google.com',
-      icon:      'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://mail.google.com&size=256',
+      id: 'gmail',    name: 'Gmail',
+      url:  'https://mail.google.com',
+      icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://mail.google.com&size=256',
       glowColor: 'rgba(234, 67, 53, 0.55)'
     },
     {
-      id:        'twitter',
-      name:      'Twitter',
-      url:       'https://x.com',
-      icon:      'https://logo.clearbit.com/x.com',
+      id: 'twitter',  name: 'Twitter',
+      url:  'https://x.com',
+      icon: 'https://logo.clearbit.com/x.com',
       glowColor: 'rgba(200, 200, 200, 0.40)'
     },
     {
-      id:        'chatgpt',
-      name:      'ChatGPT',
-      url:       'https://chat.openai.com',
-      icon:      'https://logo.clearbit.com/openai.com',
+      id: 'chatgpt',  name: 'ChatGPT',
+      url:  'https://chat.openai.com',
+      icon: 'app-icons/chatgpt.png',
       glowColor: 'rgba(16, 163, 127, 0.55)'
     },
     {
-      id:        'speedtest',
-      name:      'Speedtest',
-      url:       'https://www.speedtest.net',
-      icon:      'https://logo.clearbit.com/speedtest.net',
-      glowColor: 'rgba(0, 185, 150, 0.55)'
+      id: 'gemini',   name: 'Gemini',
+      url:  'https://gemini.google.com',
+      icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://gemini.google.com&size=256',
+      glowColor: 'rgba(66, 133, 244, 0.55)'
     },
     {
-      id:        'strava',
-      name:      'Strava',
-      url:       'https://www.strava.com',
-      icon:      'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.strava.com&size=256',
+      id: 'claude',   name: 'Claude',
+      url:  'https://claude.ai',
+      icon: 'app-icons/claude.jpg',
+      glowColor: 'rgba(212, 107, 64, 0.55)'
+    },
+    // ── Row 2 ──────────────────────────────────────────────
+    {
+      id: 'strava',   name: 'Strava',
+      url:  'https://www.strava.com/dashboard',
+      icon: 'app-icons/strava.png',
       glowColor: 'rgba(252, 76, 2, 0.55)'
     },
     {
-      id:        'youtube',
-      name:      'YouTube',
-      url:       'https://www.youtube.com',
-      icon:      'https://logo.clearbit.com/youtube.com',
+      id: 'speedtest', name: 'Speedtest',
+      url:  'https://www.speedtest.net/',
+      icon: 'app-icons/speedtest.png',
+      glowColor: 'rgba(0, 185, 150, 0.55)'
+    },
+    {
+      id: 'youtube',  name: 'YouTube',
+      url:  'https://www.youtube.com',
+      icon: 'https://logo.clearbit.com/youtube.com',
       glowColor: 'rgba(255, 48, 48, 0.55)'
     },
     {
-      id:        'ott-folder',
-      type:      'folder',
-      name:      'OTT',
-      glowColor: 'rgba(139, 92, 246, 0.55)',
-      apps: [
-        {
-          id:   'hotstar',
-          name: 'JioHotstar',
-          url:  'https://www.jiohotstar.com',
-          icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.jiohotstar.com&size=256',
-          glowColor: 'rgba(59, 130, 246, 0.55)'
-        },
-        {
-          id:   'prime',
-          name: 'Prime Video',
-          url:  'https://www.primevideo.com',
-          icon: 'https://logo.clearbit.com/primevideo.com',
-          glowColor: 'rgba(0, 168, 225, 0.55)'
-        },
-        {
-          id:   'plex',
-          name: 'Plex',
-          url:  'https://www.plex.tv',
-          icon: 'https://logo.clearbit.com/plex.tv',
-          glowColor: 'rgba(229, 160, 13, 0.55)'
-        },
-        {
-          id:   'appletv',
-          name: 'Apple TV+',
-          url:  'https://tv.apple.com',
-          icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://tv.apple.com&size=256',
-          glowColor: 'rgba(255, 255, 255, 0.35)'
-        },
-        {
-          id:   'sonyliv',
-          name: 'SonyLIV',
-          url:  'https://www.sonyliv.com',
-          icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.sonyliv.com&size=256',
-          glowColor: 'rgba(0, 112, 206, 0.55)'
-        },
-        {
-          id:   'zee5',
-          name: 'ZEE5',
-          url:  'https://www.zee5.com',
-          icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.zee5.com&size=256',
-          glowColor: 'rgba(100, 28, 161, 0.55)'
-        }
-      ]
+      id: 'github',   name: 'GitHub',
+      url:  'https://github.com',
+      icon: 'app-icons/github.png',
+      glowColor: 'rgba(139, 92, 246, 0.55)'
     },
     {
-      id:        'applemusic',
-      name:      'Apple Music',
-      url:       'https://music.apple.com',
-      icon:      'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://music.apple.com&size=256',
+      id: 'applemusic', name: 'Apple Music',
+      url:  'https://music.apple.com',
+      icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://music.apple.com&size=256',
       glowColor: 'rgba(252, 60, 68, 0.55)'
     },
     {
-      id:        'tickets-folder',
-      type:      'folder',
-      name:      'Tickets',
-      glowColor: 'rgba(239, 68, 68, 0.55)',
-      apps: [
-        {
-          id:   'pvr',
-          name: 'PVR Cinemas',
-          url:  'https://www.pvrcinemas.com',
-          icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.pvrcinemas.com&size=256',
-          glowColor: 'rgba(220, 38, 38, 0.55)'
-        },
-        {
-          id:   'district',
-          name: 'District',
-          url:  'https://www.districtapp.in',
-          icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.districtapp.in&size=256',
-          glowColor: 'rgba(147, 51, 234, 0.60)'
-        },
-        {
-          id:   'bookmyshow',
-          name: 'BookMyShow',
-          url:  'https://in.bookmyshow.com',
-          icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://in.bookmyshow.com&size=256',
-          glowColor: 'rgba(240, 20, 54, 0.60)'
-        }
-      ]
-    },
-    {
-      id:        'shop-folder',
-      type:      'folder',
-      name:      'Shopping',
-      glowColor: 'rgba(251, 146, 60, 0.55)',
-      apps: [
-        {
-          id:   'flipkart',
-          name: 'Flipkart',
-          url:  'https://www.flipkart.com',
-          icon: 'https://logo.clearbit.com/flipkart.com',
-          glowColor: 'rgba(247, 148, 30, 0.55)'
-        },
-        {
-          id:   'amazon',
-          name: 'Amazon',
-          url:  'https://www.amazon.in',
-          icon: 'https://logo.clearbit.com/amazon.in',
-          glowColor: 'rgba(255, 153, 0, 0.55)'
-        },
-        {
-          id:   'ajio',
-          name: 'AJIO',
-          url:  'https://www.ajio.com',
-          icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.ajio.com&size=256',
-          glowColor: 'rgba(220, 38, 38, 0.55)'
-        },
-        {
-          id:   'decathlon',
-          name: 'Decathlon',
-          url:  'https://www.decathlon.in',
-          icon: 'https://logo.clearbit.com/decathlon.in',
-          glowColor: 'rgba(0, 130, 200, 0.55)'
-        },
-        {
-          id:   'souledstore',
-          name: 'The Souled Store',
-          url:  'https://www.thesouledstore.com',
-          icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.thesouledstore.com&size=256',
-          glowColor: 'rgba(239, 68, 68, 0.55)'
-        }
-      ]
-    },
-    {
-      id:        'incognito',
-      type:      'incognito',
-      name:      'Incognito',
-      url:       '',
-      icon:      'app-icons/incognito.svg',
+      id: 'incognito', name: 'Incognito',
+      url: '', type: 'incognito',
+      icon: 'app-icons/incognito.jpg',
       glowColor: 'rgba(139, 92, 246, 0.55)'
+    }
+  ];
+
+  /* ----------------------------------------------------------
+     Overflow apps — fill pages 2, 3, … automatically
+  ---------------------------------------------------------- */
+  const OVERFLOW_APPS = [
+    // ── Page 2, Row 1: OTT streaming ─────────────────────────
+    {
+      id: 'hotstar',  name: 'JioHotstar',
+      url:  'https://www.jiohotstar.com',
+      icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.jiohotstar.com&size=256',
+      glowColor: 'rgba(59, 130, 246, 0.55)'
+    },
+    {
+      id: 'prime',    name: 'Prime Video',
+      url:  'https://www.primevideo.com',
+      icon: 'https://logo.clearbit.com/primevideo.com',
+      glowColor: 'rgba(0, 168, 225, 0.55)'
+    },
+    {
+      id: 'plex',     name: 'Plex',
+      url:  'https://www.plex.tv',
+      icon: 'https://logo.clearbit.com/plex.tv',
+      glowColor: 'rgba(229, 160, 13, 0.55)'
+    },
+    {
+      id: 'appletv',  name: 'Apple TV+',
+      url:  'https://tv.apple.com',
+      icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://tv.apple.com&size=256',
+      glowColor: 'rgba(255, 255, 255, 0.35)'
+    },
+    {
+      id: 'sonyliv',  name: 'SonyLIV',
+      url:  'https://www.sonyliv.com',
+      icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.sonyliv.com&size=256',
+      glowColor: 'rgba(0, 112, 206, 0.55)'
+    },
+    {
+      id: 'zee5',     name: 'ZEE5',
+      url:  'https://www.zee5.com',
+      icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.zee5.com&size=256',
+      glowColor: 'rgba(100, 28, 161, 0.55)'
+    },
+    // ── Page 2, Row 2: Netflix + Shopping ────────────────────
+    {
+      id: 'netflix',     name: 'Netflix',
+      url:  'https://www.netflix.com',
+      icon: 'https://logo.clearbit.com/netflix.com',
+      glowColor: 'rgba(229, 9, 20, 0.55)'
+    },
+    {
+      id: 'flipkart',    name: 'Flipkart',
+      url:  'https://www.flipkart.com',
+      icon: 'app-icons/flipkart.png',
+      glowColor: 'rgba(247, 148, 30, 0.55)'
+    },
+    {
+      id: 'amazon',      name: 'Amazon',
+      url:  'https://www.amazon.in',
+      icon: 'app-icons/amazon.png',
+      glowColor: 'rgba(255, 153, 0, 0.55)'
+    },
+    {
+      id: 'ajio',        name: 'AJIO',
+      url:  'https://www.ajio.com',
+      icon: 'app-icons/ajio.jpg',
+      glowColor: 'rgba(220, 38, 38, 0.55)'
+    },
+    {
+      id: 'decathlon',   name: 'Decathlon',
+      url:  'https://www.decathlon.in',
+      icon: 'https://logo.clearbit.com/decathlon.in',
+      glowColor: 'rgba(0, 130, 200, 0.55)'
+    },
+    {
+      id: 'souledstore', name: 'The Souled Store',
+      url:  'https://www.thesouledstore.com',
+      icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.thesouledstore.com&size=256',
+      glowColor: 'rgba(239, 68, 68, 0.55)'
+    },
+    // ── Page 3 (slots 1–3; rest are invisible placeholders) ──
+    {
+      id: 'pvr',      name: 'PVR Cinemas',
+      url:  'https://www.pvrcinemas.com',
+      icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.pvrcinemas.com&size=256',
+      glowColor: 'rgba(220, 38, 38, 0.55)'
+    },
+    {
+      id: 'district', name: 'District',
+      url:  'https://www.districtapp.in',
+      icon: 'app-icons/district.jpg',
+      glowColor: 'rgba(147, 51, 234, 0.60)'
+    },
+    {
+      id: 'proxy',    name: 'Proxy',
+      url:  'https://www.proxysite.com',
+      icon: 'app-icons/proxy.svg',
+      glowColor: 'rgba(67, 56, 202, 0.60)'
     }
   ];
 
   /* ----------------------------------------------------------
      State
   ---------------------------------------------------------- */
-  let apps          = [];
-  let tileSize      = 'large';
-  let animSpeed     = 'normal';
-  let editMode      = false;
-  let currentView   = { type: 'main' }; // or { type: 'folder', folder: app }
+  let tileSize  = 'large';
+  let bgSpeed   = 'fast';
+  let currentPage     = 0;
+  let totalPages      = 0;
+  let isTransitioning = false;
+  let navCooldown     = false;
 
   /* ----------------------------------------------------------
-     Storage helpers
+     Storage
   ---------------------------------------------------------- */
-  const STORAGE_VERSION = 19;
-
   function loadSettings() {
     return new Promise((resolve) => {
       if (typeof chrome !== 'undefined' && chrome.storage) {
-        chrome.storage.sync.get(['apps', 'tileSize', 'animSpeed', 'storageVersion'], (data) => {
-          // Reset to defaults if version mismatch
+        chrome.storage.sync.get(['tileSize', 'bgSpeed', 'storageVersion'], (data) => {
           if (data.storageVersion !== STORAGE_VERSION) {
-            apps      = JSON.parse(JSON.stringify(DEFAULT_APPS));
-            tileSize  = 'large';
-            animSpeed = 'normal';
-            chrome.storage.sync.set({ apps, tileSize, animSpeed, storageVersion: STORAGE_VERSION });
+            tileSize = 'large';
+            bgSpeed  = 'fast';
+            chrome.storage.sync.clear(() => {
+              chrome.storage.sync.set({ tileSize, bgSpeed, storageVersion: STORAGE_VERSION });
+            });
           } else {
-            apps      = data.apps      || JSON.parse(JSON.stringify(DEFAULT_APPS));
-            tileSize  = data.tileSize  || 'large';
-            animSpeed = data.animSpeed || 'normal';
+            tileSize = data.tileSize || 'large';
+            bgSpeed  = data.bgSpeed  || 'fast';
           }
           resolve();
         });
       } else {
-        apps = JSON.parse(JSON.stringify(DEFAULT_APPS));
-        resolve();
+        resolve(); // local file preview
       }
     });
   }
 
   function saveSettings() {
     if (typeof chrome !== 'undefined' && chrome.storage) {
-      chrome.storage.sync.set({ apps, tileSize, animSpeed });
+      chrome.storage.sync.set({ tileSize, bgSpeed, storageVersion: STORAGE_VERSION });
     }
   }
 
   /* ----------------------------------------------------------
-     Render tiles
+     Build all pages
   ---------------------------------------------------------- */
-  function renderTiles() {
-    const grid     = document.getElementById('tiles-grid');
-    grid.innerHTML = '';
-    grid.className = `tiles-grid tiles-grid--${tileSize}`;
+  function buildPages() {
+    const overflowPages = Math.ceil(OVERFLOW_APPS.length / PAGE_SIZE);
+    totalPages = 1 + overflowPages;
 
-    const inFolder   = currentView.type === 'folder';
-    const appsToShow = inFolder ? currentView.folder.apps : apps;
+    const track = document.getElementById('pages-track');
+    track.innerHTML = '';
+    track.style.transition = 'none';
+    track.style.transform  = 'translateY(0)';
 
-    // Exactly 2 rows — derive column count from item count
-    const cols = Math.ceil(appsToShow.length / 2);
-    grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    // Page 1: 9 apps + 3 invisible empty slots
+    track.appendChild(createPageEl(PAGE1_APPS, PAGE_SIZE - P1_COUNT, 0));
 
-    appsToShow.forEach((app, index) => {
+    // Pages 2, 3, … (up to as many as needed)
+    for (let p = 0; p < overflowPages; p++) {
+      const slice = OVERFLOW_APPS.slice(p * PAGE_SIZE, (p + 1) * PAGE_SIZE);
+      track.appendChild(createPageEl(slice, 0, p + 1));
+    }
 
-      // ── Incognito tile ───────────────────────────────────
-      if (!inFolder && app.type === 'incognito') {
-        const tile = document.createElement('div');
-        tile.className = 'tile';
-        tile.style.setProperty('--glow-color', app.glowColor);
-        tile.style.animationDelay = `${index * 70}ms`;
-        tile.setAttribute('role', 'button');
-        tile.setAttribute('tabindex', '0');
-        tile.setAttribute('aria-label', 'Open Incognito window');
-        tile.innerHTML = `
-          <div class="tile__icon-wrap">
-            <img class="tile__icon" src="app-icons/incognito.svg" alt="" draggable="false">
-          </div>`;
-        tile.addEventListener('click', () => {
-          if (typeof chrome !== 'undefined' && chrome.windows) {
-            chrome.windows.create({ incognito: true }, () => {
-              if (chrome.runtime.lastError) {
-                alert('Enable "Allow in Incognito" for Orbit New Tab in chrome://extensions.');
-              }
-            });
-          }
-        });
-        tile.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tile.click(); }
-        });
-        grid.appendChild(tile);
-        return;
-      }
+    renderPageDots();
+    goToPage(currentPage, false);
+  }
 
-      // ── Folder tile (main view only) ────────────────────
-      if (!inFolder && app.type === 'folder') {
-        const tile = document.createElement('div');
-        tile.className = 'tile tile--folder';
-        tile.style.setProperty('--glow-color', app.glowColor);
-        tile.style.animationDelay = `${index * 70}ms`;
-        tile.setAttribute('role', 'button');
-        tile.setAttribute('tabindex', '0');
-        tile.setAttribute('aria-label', `${app.name} folder`);
+  /* Build a single <section> containing one page-grid */
+  function createPageEl(apps, emptyCount, pageIndex) {
+    const section = document.createElement('section');
+    section.className = 'page';
+    section.setAttribute('aria-label', `Page ${pageIndex + 1}`);
 
-        const miniIcons = (app.apps || []).slice(0, 4).map(a => {
-          const d = getDomain(a.url);
-          return `<img class="folder-mini-icon" src="${escapeAttr(a.icon)}" alt=""
-                       data-fallback1="https://www.google.com/s2/favicons?domain=${d}&sz=64"
-                       data-fallback2="app-icons/fallback.svg">`;
-        }).join('');
+    const grid = document.createElement('div');
+    grid.className = `page-grid page-grid--${tileSize}`;
+    grid.style.gridTemplateColumns = `repeat(${COLS}, 1fr)`;
 
-        tile.innerHTML = `<div class="folder-mini-grid">${miniIcons}</div>`;
-        tile.addEventListener('click', () => openFolder(app));
-        tile.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openFolder(app); }
-        });
-
-        if (editMode) {
-          const removeBtn = document.createElement('button');
-          removeBtn.className = 'tile__remove';
-          removeBtn.setAttribute('aria-label', 'Remove folder');
-          removeBtn.textContent = '×';
-          removeBtn.addEventListener('click', (e) => { e.stopPropagation(); removeApp(app.id); });
-          tile.appendChild(removeBtn);
-        }
-
-        grid.appendChild(tile);
-        return;
-      }
-
-      // ── Regular app tile ─────────────────────────────────
-      const tile = document.createElement('a');
-      tile.className = 'tile';
-      tile.href      = app.url;
-      tile.style.setProperty('--glow-color', app.glowColor);
-      tile.setAttribute('aria-label', app.name);
-      tile.setAttribute('role', 'listitem');
-      tile.style.animationDelay = `${index * 70}ms`;
-
-      const domain    = getDomain(app.url);
-      const iconSrc   = app.icon || `https://logo.clearbit.com/${domain}`;
-      const fallback1 = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
-
-      tile.innerHTML = `
-        <div class="tile__icon-wrap">
-          <img class="tile__icon" src="${escapeAttr(iconSrc)}" alt=""
-               draggable="false"
-               data-fallback1="${escapeAttr(fallback1)}"
-               data-fallback2="app-icons/fallback.svg">
-        </div>
-        <span class="tile__name">${escapeHtml(app.name)}</span>
-      `;
-
-      if (!inFolder && editMode) {
-        const removeBtn = document.createElement('button');
-        removeBtn.className = 'tile__remove';
-        removeBtn.setAttribute('aria-label', `Remove ${app.name}`);
-        removeBtn.textContent = '×';
-        removeBtn.addEventListener('click', (e) => {
-          e.preventDefault(); e.stopPropagation(); removeApp(app.id);
-        });
-        tile.appendChild(removeBtn);
-      }
-
-      tile.addEventListener('click', (e) => { if (editMode) e.preventDefault(); });
+    apps.forEach((app, i) => {
+      const tile = createTileEl(app, i);
       grid.appendChild(tile);
     });
+
+    // Invisible spacer tiles keep the grid geometry intact
+    for (let i = 0; i < emptyCount; i++) {
+      const spacer = document.createElement('div');
+      spacer.className = 'tile tile--empty';
+      spacer.setAttribute('aria-hidden', 'true');
+      grid.appendChild(spacer);
+    }
+
+    section.appendChild(grid);
+    return section;
   }
 
   /* ----------------------------------------------------------
-     App CRUD
+     Build a single tile element
   ---------------------------------------------------------- */
-  function removeApp(id) {
-    apps = apps.filter(a => a.id !== id);
-    saveSettings();
-    renderTiles();
+  function createTileEl(app, index) {
+    const delay = `${index * 55}ms`;
+
+    // ── Incognito special tile ──────────────────────────────
+    if (app.type === 'incognito') {
+      const tile = document.createElement('div');
+      tile.className = 'tile';
+      tile.style.setProperty('--glow-color', app.glowColor);
+      tile.style.animationDelay = delay;
+      tile.setAttribute('role', 'button');
+      tile.setAttribute('tabindex', '0');
+      tile.setAttribute('aria-label', 'Open Incognito window');
+      tile.innerHTML = `
+        <div class="tile__icon-wrap">
+          <img class="tile__icon" src="${escapeAttr(app.icon)}" alt="" draggable="false">
+        </div>`;
+
+      const launch = () => {
+        if (typeof chrome !== 'undefined' && chrome.windows) {
+          chrome.windows.create({ incognito: true }, () => {
+            if (chrome.runtime.lastError) {
+              alert('Enable "Allow in Incognito" for Orbit New Tab in chrome://extensions.');
+            }
+          });
+        }
+      };
+      tile.addEventListener('click', launch);
+      tile.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); launch(); }
+      });
+      return tile;
+    }
+
+    // ── Regular app tile ────────────────────────────────────
+    const tile = document.createElement('a');
+    tile.className = 'tile';
+    tile.href      = app.url;
+    tile.style.setProperty('--glow-color', app.glowColor);
+    tile.style.animationDelay = delay;
+    tile.setAttribute('aria-label', app.name);
+
+    const domain    = getDomain(app.url);
+    const iconSrc   = app.icon || `https://logo.clearbit.com/${domain}`;
+    const fallback1 = `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${domain}&size=256`;
+
+    tile.innerHTML = `
+      <div class="tile__icon-wrap">
+        <img class="tile__icon"
+             src="${escapeAttr(iconSrc)}"
+             alt=""
+             draggable="false"
+             data-fallback1="${escapeAttr(fallback1)}"
+             data-fallback2="app-icons/fallback.svg">
+      </div>`;
+
+    return tile;
   }
 
-  function addApp(name, url, glowColor) {
-    const normalised = url.startsWith('http') ? url : `https://${url}`;
-    const domain     = getDomain(normalised);
-    const id         = domain.replace(/\./g, '-') + '-' + Date.now();
+  /* ----------------------------------------------------------
+     Page navigation
+  ---------------------------------------------------------- */
+  function goToPage(index, animate = true) {
+    currentPage = Math.max(0, Math.min(index, totalPages - 1));
 
-    apps.push({
-      id,
-      name:      name.trim(),
-      url:       normalised,
-      icon:      `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
-      glowColor: glowColor || 'rgba(255, 255, 255, 0.40)'
+    const track = document.getElementById('pages-track');
+
+    if (animate) {
+      track.style.transition  = 'transform 0.55s cubic-bezier(0.77, 0, 0.175, 1)';
+      isTransitioning = true;
+      setTimeout(() => { isTransitioning = false; }, 600);
+    } else {
+      track.style.transition = 'none';
+    }
+
+    track.style.transform = `translateY(${-currentPage * 100}vh)`;
+    updatePageDots();
+  }
+
+  function navigate(dir) {
+    if (isTransitioning || navCooldown) return;
+    const next = currentPage + dir;
+    if (next < 0 || next >= totalPages) return;
+
+    navCooldown = true;
+    setTimeout(() => { navCooldown = false; }, 700);
+    goToPage(next);
+  }
+
+  function setupNavigation() {
+    document.body.style.overflow = 'hidden';
+
+    // Wheel — also fires for touchpad two-finger scroll
+    document.addEventListener('wheel', (e) => {
+      if (Math.abs(e.deltaY) < 10) return;
+      e.preventDefault();
+      navigate(e.deltaY > 0 ? 1 : -1);
+    }, { passive: false });
+
+    // Keyboard
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); navigate(1);  }
+      if (e.key === 'ArrowUp'   || e.key === 'PageUp')   { e.preventDefault(); navigate(-1); }
     });
-
-    saveSettings();
-    renderTiles();
   }
 
   /* ----------------------------------------------------------
-     Helpers
+     Page indicator dots
   ---------------------------------------------------------- */
-  function getDomain(url) {
-    try { return new URL(url).hostname.replace(/^www\./, ''); }
-    catch { return url; }
+  function renderPageDots() {
+    const nav = document.getElementById('page-dots');
+    nav.innerHTML = '';
+
+    for (let i = 0; i < totalPages; i++) {
+      const dot = document.createElement('button');
+      dot.className = 'page-dot' + (i === currentPage ? ' page-dot--active' : '');
+      dot.setAttribute('aria-label', `Go to page ${i + 1}`);
+      dot.addEventListener('click', () => goToPage(i));
+      nav.appendChild(dot);
+    }
   }
 
-  function escapeHtml(str) {
-    return str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
-
-  function escapeAttr(str) {
-    return str.replace(/"/g, '&quot;');
+  function updatePageDots() {
+    document.querySelectorAll('.page-dot').forEach((dot, i) => {
+      dot.classList.toggle('page-dot--active', i === currentPage);
+    });
   }
 
   /* ----------------------------------------------------------
-     Settings panel wiring
+     Settings panel
   ---------------------------------------------------------- */
   const settingsToggle = document.getElementById('settings-toggle');
   const settingsPanel  = document.getElementById('settings-panel');
   const settingsClose  = document.getElementById('settings-close');
 
-  function openPanel() {
+  function openPanel()  {
     settingsPanel.classList.add('open');
     settingsToggle.classList.add('panel-open');
     settingsToggle.setAttribute('aria-expanded', 'true');
   }
-
   function closePanel() {
     settingsPanel.classList.remove('open');
     settingsToggle.classList.remove('panel-open');
@@ -431,163 +441,65 @@
   settingsToggle.addEventListener('click', () => {
     settingsPanel.classList.contains('open') ? closePanel() : openPanel();
   });
-
   settingsClose.addEventListener('click', closePanel);
 
-  // Close on Escape
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      if (currentView.type === 'folder') { closeFolderView(); return; }
-      if (settingsPanel.classList.contains('open')) closePanel();
-    }
+    if (e.key === 'Escape' && settingsPanel.classList.contains('open')) closePanel();
   });
 
-  // Close on outside click
   document.addEventListener('click', (e) => {
     if (
       settingsPanel.classList.contains('open') &&
       !settingsPanel.contains(e.target) &&
       !settingsToggle.contains(e.target)
-    ) {
-      closePanel();
-    }
+    ) closePanel();
   });
 
-  /* ----------------------------------------------------------
-     Tile size buttons
-  ---------------------------------------------------------- */
+  // Tile size
   document.querySelectorAll('.size-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       tileSize = btn.dataset.size;
       document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       saveSettings();
-      renderTiles();
+      buildPages();
     });
   });
 
-  /* ----------------------------------------------------------
-     Animation speed buttons
-  ---------------------------------------------------------- */
-  document.querySelectorAll('.speed-btn').forEach(btn => {
+  // Background speed
+  document.querySelectorAll('.bgspeed-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      animSpeed = btn.dataset.speed;
-      document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+      bgSpeed = btn.dataset.bgspeed;
+      document.querySelectorAll('.bgspeed-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      document.documentElement.dataset.animSpeed = animSpeed;
-      document.dispatchEvent(new CustomEvent('orbitAnimSpeedChange'));
+      document.documentElement.dataset.bgSpeed = bgSpeed;
+      document.dispatchEvent(new CustomEvent('orbitBgSpeedChange'));
       saveSettings();
     });
   });
 
-  /* ----------------------------------------------------------
-     Edit mode toggle
-  ---------------------------------------------------------- */
-  const editBtn = document.getElementById('edit-mode-toggle');
-
-  editBtn.addEventListener('click', () => {
-    editMode = !editMode;
-    editBtn.textContent = editMode ? 'Done Editing' : 'Edit Tiles';
-    renderTiles();
-  });
-
-  /* ----------------------------------------------------------
-     Add-app form
-  ---------------------------------------------------------- */
-  document.getElementById('add-app-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    const name  = document.getElementById('new-app-name').value.trim();
-    const url   = document.getElementById('new-app-url').value.trim();
-    const hex   = document.getElementById('new-app-color').value;
-
-    if (!name || !url) return;
-
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-
-    addApp(name, url, `rgba(${r}, ${g}, ${b}, 0.55)`);
-
-    document.getElementById('new-app-name').value = '';
-    document.getElementById('new-app-url').value  = '';
-  });
-
-  /* ----------------------------------------------------------
-     Reset to defaults
-  ---------------------------------------------------------- */
+  // Reset
   document.getElementById('reset-btn').addEventListener('click', () => {
-    if (!confirm('Reset all tiles and settings to defaults?')) return;
-    apps      = JSON.parse(JSON.stringify(DEFAULT_APPS));
-    tileSize  = 'large';
-    animSpeed = 'normal';
-    if (typeof chrome !== 'undefined' && chrome.storage) {
-      chrome.storage.sync.set({ apps, tileSize, animSpeed, storageVersion: STORAGE_VERSION });
-    }
+    if (!confirm('Reset tile size and animation to defaults?')) return;
+    tileSize = 'large';
+    bgSpeed  = 'fast';
+    saveSettings();
     applySettingsToUI();
-    renderTiles();
+    buildPages();
   });
 
-  /* ----------------------------------------------------------
-     Apply loaded settings back to the UI controls
-  ---------------------------------------------------------- */
   function applySettingsToUI() {
-    // Tile size buttons
     document.querySelectorAll('.size-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.size === tileSize);
     });
-
-    // Speed buttons
-    document.querySelectorAll('.speed-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.speed === animSpeed);
+    document.querySelectorAll('.bgspeed-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.bgspeed === bgSpeed);
     });
-
-    // HTML data attribute (read by stars.js)
-    document.documentElement.dataset.animSpeed = animSpeed;
+    document.documentElement.dataset.bgSpeed = bgSpeed;
   }
 
   /* ----------------------------------------------------------
-     Folder open / close — full-page view switch
-  ---------------------------------------------------------- */
-  function openFolder(folder) {
-    currentView = { type: 'folder', folder };
-    renderTiles();
-    showBackButton();
-  }
-
-  function closeFolderView() {
-    currentView = { type: 'main' };
-    renderTiles();
-    hideBackButton();
-  }
-
-  function showBackButton() {
-    let btn = document.getElementById('back-btn');
-    if (!btn) {
-      btn = document.createElement('button');
-      btn.id = 'back-btn';
-      btn.className = 'back-btn';
-      btn.setAttribute('aria-label', 'Back to home');
-      btn.innerHTML = `
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-             stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-          <polyline points="15 18 9 12 15 6"/>
-        </svg>
-        Back
-      `;
-      btn.addEventListener('click', closeFolderView);
-      document.body.appendChild(btn);
-    }
-    requestAnimationFrame(() => btn.classList.add('visible'));
-  }
-
-  function hideBackButton() {
-    const btn = document.getElementById('back-btn');
-    if (btn) btn.classList.remove('visible');
-  }
-
-  /* ----------------------------------------------------------
-     Icon fallback chain — handles tiles + folder modal images
+     Icon fallback chain (Clearbit → gstatic → bundled)
   ---------------------------------------------------------- */
   document.body.addEventListener('error', (e) => {
     const img = e.target;
@@ -602,13 +514,27 @@
   }, true);
 
   /* ----------------------------------------------------------
+     Helpers
+  ---------------------------------------------------------- */
+  function getDomain(url) {
+    try { return new URL(url).hostname.replace(/^www\./, ''); }
+    catch { return url; }
+  }
+
+  function escapeAttr(s) {
+    return String(s).replace(/"/g, '&quot;');
+  }
+
+  /* ----------------------------------------------------------
      Boot
   ---------------------------------------------------------- */
   async function init() {
     await loadSettings();
     applySettingsToUI();
-    renderTiles();
+    buildPages();
+    setupNavigation();
   }
 
   init();
+
 })();
