@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Dark background -->
+  <rect width="128" height="128" rx="22" fill="#1e1e2e"/>
+
+  <!-- Hat crown -->
+  <rect x="36" y="18" width="56" height="32" rx="12" fill="rgba(255,255,255,0.88)"/>
+
+  <!-- Hat brim -->
+  <ellipse cx="64" cy="50" rx="38" ry="9" fill="rgba(255,255,255,0.88)"/>
+
+  <!-- Head -->
+  <circle cx="64" cy="72" r="19" fill="rgba(255,255,255,0.88)"/>
+
+  <!-- Left lens (dark fill to show face) -->
+  <circle cx="53" cy="71" r="9" fill="#1e1e2e"/>
+  <!-- Right lens -->
+  <circle cx="75" cy="71" r="9" fill="#1e1e2e"/>
+
+  <!-- Left lens rim -->
+  <circle cx="53" cy="71" r="9" fill="none" stroke="rgba(255,255,255,0.88)" stroke-width="2.5"/>
+  <!-- Right lens rim -->
+  <circle cx="75" cy="71" r="9" fill="none" stroke="rgba(255,255,255,0.88)" stroke-width="2.5"/>
+
+  <!-- Bridge between lenses -->
+  <line x1="62" y1="71" x2="66" y2="71"
+        stroke="rgba(255,255,255,0.88)" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Temple arms -->
+  <line x1="44" y1="71" x2="36" y2="68"
+        stroke="rgba(255,255,255,0.88)" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="84" y1="71" x2="92" y2="68"
+        stroke="rgba(255,255,255,0.88)" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Shoulders -->
+  <path d="M 20 112 Q 40 90 64 90 Q 88 90 108 112"
+        fill="rgba(255,255,255,0.72)" stroke="none"/>
+</svg>

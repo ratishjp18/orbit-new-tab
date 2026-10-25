@@ -16,7 +16,7 @@
   --tile-w:       150px;
   --tile-h:       150px;
   --tile-icon:    118px;
-  --tile-gap:      28px;
+  --tile-gap:      40px;
   --tile-radius:   24px;
   --tile-font:   0.85rem;
 
@@ -161,76 +161,52 @@ body {
 }
 
 /* ============================================================
-   Main layout
+   Main layout — padded container, tiles-grid fills it
    ============================================================ */
 .main {
   position: fixed;
   inset: 0;
   z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
+  padding: 5vh 4vw;
 }
 
 /* ============================================================
-   Tiles grid
+   Tiles grid — 2 equal rows, columns set by JS
    ============================================================ */
 .tiles-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: var(--tile-gap);
-  /* exactly 6 tiles wide */
-  max-width: calc(6 * var(--tile-w) + 5 * var(--tile-gap));
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-rows: repeat(2, 1fr);
+  /* grid-template-columns injected inline by renderTiles() */
+  gap: 0; /* spacing comes from tile padding */
 }
 
-/* Size variants */
-.tiles-grid--medium {
-  --tile-w:     124px;
-  --tile-h:     124px;
-  --tile-icon:   96px;
-  --tile-gap:    20px;
-  --tile-font: 0.78rem;
-}
-.tiles-grid--large {
-  --tile-w:     150px;
-  --tile-h:     150px;
-  --tile-icon:  118px;
-  --tile-gap:    28px;
-  --tile-font: 0.85rem;
-}
-.tiles-grid--xlarge {
-  --tile-w:     190px;
-  --tile-h:     190px;
-  --tile-icon:  152px;
-  --tile-gap:    36px;
-  --tile-font: 0.95rem;
-}
+/* Size variants — only change icon scale, layout is viewport-driven */
+.tiles-grid--medium  { --icon-size: clamp(55px,  9vmin, 110px); }
+.tiles-grid--large   { --icon-size: clamp(68px, 11vmin, 140px); }
+.tiles-grid--xlarge  { --icon-size: clamp(80px, 13vmin, 170px); }
 
 /* ============================================================
-   Individual tile
+   Individual tile — fills grid cell, centres icon
    ============================================================ */
 .tile {
   position: relative;
-  width:  var(--tile-w);
-  height: var(--tile-h);
+  width: 100%;
+  height: 100%;
   background: transparent;
   border: none;
-  border-radius: var(--tile-radius);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
   cursor: pointer;
   text-decoration: none;
   color: var(--tile-text);
   user-select: none;
+  border-radius: var(--tile-radius);
 
   animation: tileEnter 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-
   transition:
     transform  0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
     box-shadow 0.28s ease;
@@ -256,12 +232,10 @@ body {
   transition-duration: 0.1s;
 }
 
-/* Remove glass fallback — no longer needed */
-
-/* Icon wrapper — fills the tile */
+/* Icon wrapper — responsive size via clamp() */
 .tile__icon-wrap {
-  width:  var(--tile-icon);
-  height: var(--tile-icon);
+  width:  var(--icon-size, clamp(68px, 11vmin, 140px));
+  height: var(--icon-size, clamp(68px, 11vmin, 140px));
   border-radius: 18px;
   overflow: hidden;
   display: flex;
@@ -284,16 +258,14 @@ body {
   image-rendering: -webkit-optimize-contrast;
 }
 
-/* App name — hidden by default, show on hover as tooltip-style label */
-.tile__name {
-  display: none;
-}
+/* App name — hidden */
+.tile__name { display: none; }
 
 /* Remove button (edit mode) */
 .tile__remove {
   position: absolute;
-  top: -9px;
-  right: -9px;
+  top: calc(50% - var(--icon-size, 68px) / 2 - 11px);
+  right: calc(50% - var(--icon-size, 68px) / 2 - 11px);
   width: 22px;
   height: 22px;
   border-radius: 50%;
@@ -563,22 +535,23 @@ body:hover .settings-toggle,
 }
 
 /* ============================================================
-   Folder tile — no background box, just the mini icon grid
+   Folder tile — same grid cell behaviour as regular tile
    ============================================================ */
 .tile--folder {
-  background:          transparent !important;
-  backdrop-filter:     none        !important;
-  -webkit-backdrop-filter: none   !important;
-  border:              none        !important;
-  box-shadow:          none        !important;
+  background:              transparent !important;
+  backdrop-filter:         none        !important;
+  -webkit-backdrop-filter: none        !important;
+  border:                  none        !important;
+  box-shadow:              none        !important;
 }
 
+/* 2×2 mini icon preview — matches icon-wrapper size */
 .folder-mini-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 5px;
-  width: 86px;
-  height: 86px;
+  width:  var(--icon-size, clamp(68px, 11vmin, 140px));
+  height: var(--icon-size, clamp(68px, 11vmin, 140px));
   padding: 7px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.05);
@@ -720,8 +693,8 @@ body:hover .settings-toggle,
    Reduced motion
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
-  .nebula   { animation: none !important; }
-  .tile     { animation: none !important; transition: none !important; }
+  .nebula          { animation: none !important; }
+  .tile            { animation: none !important; transition: none !important; }
   .settings-panel  { transition: none !important; }
   .settings-toggle { transition: none !important; }
 }
@@ -730,16 +703,11 @@ body:hover .settings-toggle,
    Responsive
    ============================================================ */
 @media (max-width: 600px) {
-  .tiles-grid {
-    --tile-w:     110px;
-    --tile-h:     136px;
-    --tile-icon:   48px;
-    --tile-gap:    14px;
-    --tile-font: 0.75rem;
-  }
+  .main { padding: 3vh 3vw; }
+  .tiles-grid--large { --icon-size: clamp(48px, 12vmin, 90px); }
   .settings-panel { width: 100%; }
 }
 
 @media (max-height: 480px) {
-  .main { align-items: flex-start; padding-top: 12px; overflow-y: auto; }
+  .main { padding: 2vh 3vw; overflow-y: auto; }
 }

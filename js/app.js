@@ -32,18 +32,18 @@
       glowColor: 'rgba(200, 200, 200, 0.40)'
     },
     {
-      id:        'ookla',
-      name:      'Speedtest',
-      url:       'https://www.speedtest.net',
-      icon:      'https://logo.clearbit.com/speedtest.net',
-      glowColor: 'rgba(0, 185, 150, 0.55)'
-    },
-    {
       id:        'chatgpt',
       name:      'ChatGPT',
       url:       'https://chat.openai.com',
       icon:      'https://logo.clearbit.com/openai.com',
       glowColor: 'rgba(16, 163, 127, 0.55)'
+    },
+    {
+      id:        'speedtest',
+      name:      'Speedtest',
+      url:       'https://www.speedtest.net',
+      icon:      'https://logo.clearbit.com/speedtest.net',
+      glowColor: 'rgba(0, 185, 150, 0.55)'
     },
     {
       id:        'strava',
@@ -106,15 +106,15 @@
           url:  'https://www.zee5.com',
           icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.zee5.com&size=256',
           glowColor: 'rgba(100, 28, 161, 0.55)'
-        },
-        {
-          id:   'applemusic',
-          name: 'Apple Music',
-          url:  'https://music.apple.com',
-          icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://music.apple.com&size=256',
-          glowColor: 'rgba(252, 60, 68, 0.55)'
         }
       ]
+    },
+    {
+      id:        'applemusic',
+      name:      'Apple Music',
+      url:       'https://music.apple.com',
+      icon:      'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://music.apple.com&size=256',
+      glowColor: 'rgba(252, 60, 68, 0.55)'
     },
     {
       id:        'tickets-folder',
@@ -187,6 +187,14 @@
           glowColor: 'rgba(239, 68, 68, 0.55)'
         }
       ]
+    },
+    {
+      id:        'incognito',
+      type:      'incognito',
+      name:      'Incognito',
+      url:       '',
+      icon:      'app-icons/incognito.svg',
+      glowColor: 'rgba(139, 92, 246, 0.55)'
     }
   ];
 
@@ -202,7 +210,7 @@
   /* ----------------------------------------------------------
      Storage helpers
   ---------------------------------------------------------- */
-  const STORAGE_VERSION = 15;
+  const STORAGE_VERSION = 19;
 
   function loadSettings() {
     return new Promise((resolve) => {
@@ -245,7 +253,40 @@
     const inFolder   = currentView.type === 'folder';
     const appsToShow = inFolder ? currentView.folder.apps : apps;
 
+    // Exactly 2 rows — derive column count from item count
+    const cols = Math.ceil(appsToShow.length / 2);
+    grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+
     appsToShow.forEach((app, index) => {
+
+      // ── Incognito tile ───────────────────────────────────
+      if (!inFolder && app.type === 'incognito') {
+        const tile = document.createElement('div');
+        tile.className = 'tile';
+        tile.style.setProperty('--glow-color', app.glowColor);
+        tile.style.animationDelay = `${index * 70}ms`;
+        tile.setAttribute('role', 'button');
+        tile.setAttribute('tabindex', '0');
+        tile.setAttribute('aria-label', 'Open Incognito window');
+        tile.innerHTML = `
+          <div class="tile__icon-wrap">
+            <img class="tile__icon" src="app-icons/incognito.svg" alt="" draggable="false">
+          </div>`;
+        tile.addEventListener('click', () => {
+          if (typeof chrome !== 'undefined' && chrome.windows) {
+            chrome.windows.create({ incognito: true }, () => {
+              if (chrome.runtime.lastError) {
+                alert('Enable "Allow in Incognito" for Orbit New Tab in chrome://extensions.');
+              }
+            });
+          }
+        });
+        tile.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tile.click(); }
+        });
+        grid.appendChild(tile);
+        return;
+      }
 
       // ── Folder tile (main view only) ────────────────────
       if (!inFolder && app.type === 'folder') {
