@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="hsbg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#1d4ed8"/>
+      <stop offset="100%" stop-color="#6d28d9"/>
+    </linearGradient>
+    <linearGradient id="hsStar" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#bfdbfe"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="128" height="128" rx="22" fill="url(#hsbg)"/>
+
+  <!--
+    5-pointed star, centred at 64,64
+    Outer radius 46, inner radius 19
+    Point at top (−90°)
+  -->
+  <polygon
+    fill="url(#hsStar)"
+    points="
+      64.00,18.00
+      74.81,50.53
+      109.28,50.53
+      81.24,69.97
+      91.99,102.50
+      64.00,83.00
+      36.01,102.50
+      46.76,69.97
+      18.72,50.53
+      53.19,50.53
+    "
+  />
+</svg>

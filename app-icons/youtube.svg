@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Background -->
+  <rect width="128" height="128" rx="22" fill="#0f0f0f"/>
+
+  <!-- Red play-button shape -->
+  <rect x="12" y="34" width="104" height="60" rx="16" fill="#ff0000"/>
+
+  <!-- White play triangle -->
+  <polygon points="50,46 50,82 88,64" fill="white"/>
+</svg>
