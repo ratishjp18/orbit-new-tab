@@ -11,32 +11,182 @@
   ---------------------------------------------------------- */
   const DEFAULT_APPS = [
     {
-      id:        'netflix',
-      name:      'Netflix',
-      url:       'https://www.netflix.com',
-      icon:      'app-icons/netflix.svg',
-      glowColor: 'rgba(229, 9, 20, 0.55)'
+      id:        'google',
+      name:      'Google',
+      url:       'https://www.google.com',
+      icon:      'https://logo.clearbit.com/google.com',
+      glowColor: 'rgba(66, 133, 244, 0.55)'
     },
     {
-      id:        'hotstar',
-      name:      'JioHotstar',
-      url:       'https://www.jiohotstar.com',
-      icon:      'app-icons/hotstar.svg',
-      glowColor: 'rgba(59, 130, 246, 0.55)'
+      id:        'gmail',
+      name:      'Gmail',
+      url:       'https://mail.google.com',
+      icon:      'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://mail.google.com&size=256',
+      glowColor: 'rgba(234, 67, 53, 0.55)'
     },
     {
-      id:        'youtube',
-      name:      'YouTube',
-      url:       'https://www.youtube.com',
-      icon:      'app-icons/youtube.svg',
-      glowColor: 'rgba(255, 48, 48, 0.55)'
+      id:        'twitter',
+      name:      'Twitter',
+      url:       'https://x.com',
+      icon:      'https://logo.clearbit.com/x.com',
+      glowColor: 'rgba(200, 200, 200, 0.40)'
+    },
+    {
+      id:        'ookla',
+      name:      'Speedtest',
+      url:       'https://www.speedtest.net',
+      icon:      'https://logo.clearbit.com/speedtest.net',
+      glowColor: 'rgba(0, 185, 150, 0.55)'
     },
     {
       id:        'chatgpt',
       name:      'ChatGPT',
       url:       'https://chat.openai.com',
-      icon:      'app-icons/chatgpt.svg',
+      icon:      'https://logo.clearbit.com/openai.com',
       glowColor: 'rgba(16, 163, 127, 0.55)'
+    },
+    {
+      id:        'strava',
+      name:      'Strava',
+      url:       'https://www.strava.com',
+      icon:      'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.strava.com&size=256',
+      glowColor: 'rgba(252, 76, 2, 0.55)'
+    },
+    {
+      id:        'youtube',
+      name:      'YouTube',
+      url:       'https://www.youtube.com',
+      icon:      'https://logo.clearbit.com/youtube.com',
+      glowColor: 'rgba(255, 48, 48, 0.55)'
+    },
+    {
+      id:        'ott-folder',
+      type:      'folder',
+      name:      'OTT',
+      glowColor: 'rgba(139, 92, 246, 0.55)',
+      apps: [
+        {
+          id:   'hotstar',
+          name: 'JioHotstar',
+          url:  'https://www.jiohotstar.com',
+          icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.jiohotstar.com&size=256',
+          glowColor: 'rgba(59, 130, 246, 0.55)'
+        },
+        {
+          id:   'prime',
+          name: 'Prime Video',
+          url:  'https://www.primevideo.com',
+          icon: 'https://logo.clearbit.com/primevideo.com',
+          glowColor: 'rgba(0, 168, 225, 0.55)'
+        },
+        {
+          id:   'plex',
+          name: 'Plex',
+          url:  'https://www.plex.tv',
+          icon: 'https://logo.clearbit.com/plex.tv',
+          glowColor: 'rgba(229, 160, 13, 0.55)'
+        },
+        {
+          id:   'appletv',
+          name: 'Apple TV+',
+          url:  'https://tv.apple.com',
+          icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://tv.apple.com&size=256',
+          glowColor: 'rgba(255, 255, 255, 0.35)'
+        },
+        {
+          id:   'sonyliv',
+          name: 'SonyLIV',
+          url:  'https://www.sonyliv.com',
+          icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.sonyliv.com&size=256',
+          glowColor: 'rgba(0, 112, 206, 0.55)'
+        },
+        {
+          id:   'zee5',
+          name: 'ZEE5',
+          url:  'https://www.zee5.com',
+          icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.zee5.com&size=256',
+          glowColor: 'rgba(100, 28, 161, 0.55)'
+        },
+        {
+          id:   'applemusic',
+          name: 'Apple Music',
+          url:  'https://music.apple.com',
+          icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://music.apple.com&size=256',
+          glowColor: 'rgba(252, 60, 68, 0.55)'
+        }
+      ]
+    },
+    {
+      id:        'tickets-folder',
+      type:      'folder',
+      name:      'Tickets',
+      glowColor: 'rgba(239, 68, 68, 0.55)',
+      apps: [
+        {
+          id:   'pvr',
+          name: 'PVR Cinemas',
+          url:  'https://www.pvrcinemas.com',
+          icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.pvrcinemas.com&size=256',
+          glowColor: 'rgba(220, 38, 38, 0.55)'
+        },
+        {
+          id:   'district',
+          name: 'District',
+          url:  'https://www.districtapp.in',
+          icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.districtapp.in&size=256',
+          glowColor: 'rgba(147, 51, 234, 0.60)'
+        },
+        {
+          id:   'bookmyshow',
+          name: 'BookMyShow',
+          url:  'https://in.bookmyshow.com',
+          icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://in.bookmyshow.com&size=256',
+          glowColor: 'rgba(240, 20, 54, 0.60)'
+        }
+      ]
+    },
+    {
+      id:        'shop-folder',
+      type:      'folder',
+      name:      'Shopping',
+      glowColor: 'rgba(251, 146, 60, 0.55)',
+      apps: [
+        {
+          id:   'flipkart',
+          name: 'Flipkart',
+          url:  'https://www.flipkart.com',
+          icon: 'https://logo.clearbit.com/flipkart.com',
+          glowColor: 'rgba(247, 148, 30, 0.55)'
+        },
+        {
+          id:   'amazon',
+          name: 'Amazon',
+          url:  'https://www.amazon.in',
+          icon: 'https://logo.clearbit.com/amazon.in',
+          glowColor: 'rgba(255, 153, 0, 0.55)'
+        },
+        {
+          id:   'ajio',
+          name: 'AJIO',
+          url:  'https://www.ajio.com',
+          icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.ajio.com&size=256',
+          glowColor: 'rgba(220, 38, 38, 0.55)'
+        },
+        {
+          id:   'decathlon',
+          name: 'Decathlon',
+          url:  'https://www.decathlon.in',
+          icon: 'https://logo.clearbit.com/decathlon.in',
+          glowColor: 'rgba(0, 130, 200, 0.55)'
+        },
+        {
+          id:   'souledstore',
+          name: 'The Souled Store',
+          url:  'https://www.thesouledstore.com',
+          icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.thesouledstore.com&size=256',
+          glowColor: 'rgba(239, 68, 68, 0.55)'
+        }
+      ]
     }
   ];
 
@@ -47,22 +197,32 @@
   let tileSize      = 'large';
   let animSpeed     = 'normal';
   let editMode      = false;
+  let currentView   = { type: 'main' }; // or { type: 'folder', folder: app }
 
   /* ----------------------------------------------------------
      Storage helpers
   ---------------------------------------------------------- */
+  const STORAGE_VERSION = 15;
+
   function loadSettings() {
     return new Promise((resolve) => {
       if (typeof chrome !== 'undefined' && chrome.storage) {
-        chrome.storage.sync.get(['apps', 'tileSize', 'animSpeed'], (data) => {
-          apps      = data.apps      || JSON.parse(JSON.stringify(DEFAULT_APPS));
-          tileSize  = data.tileSize  || 'large';
-          animSpeed = data.animSpeed || 'normal';
+        chrome.storage.sync.get(['apps', 'tileSize', 'animSpeed', 'storageVersion'], (data) => {
+          // Reset to defaults if version mismatch
+          if (data.storageVersion !== STORAGE_VERSION) {
+            apps      = JSON.parse(JSON.stringify(DEFAULT_APPS));
+            tileSize  = 'large';
+            animSpeed = 'normal';
+            chrome.storage.sync.set({ apps, tileSize, animSpeed, storageVersion: STORAGE_VERSION });
+          } else {
+            apps      = data.apps      || JSON.parse(JSON.stringify(DEFAULT_APPS));
+            tileSize  = data.tileSize  || 'large';
+            animSpeed = data.animSpeed || 'normal';
+          }
           resolve();
         });
       } else {
-        // Local-file fallback (testing without extension context)
-        apps      = JSON.parse(JSON.stringify(DEFAULT_APPS));
+        apps = JSON.parse(JSON.stringify(DEFAULT_APPS));
         resolve();
       }
     });
@@ -78,56 +238,86 @@
      Render tiles
   ---------------------------------------------------------- */
   function renderTiles() {
-    const grid = document.getElementById('tiles-grid');
+    const grid     = document.getElementById('tiles-grid');
     grid.innerHTML = '';
     grid.className = `tiles-grid tiles-grid--${tileSize}`;
 
-    apps.forEach((app, index) => {
+    const inFolder   = currentView.type === 'folder';
+    const appsToShow = inFolder ? currentView.folder.apps : apps;
+
+    appsToShow.forEach((app, index) => {
+
+      // ── Folder tile (main view only) ────────────────────
+      if (!inFolder && app.type === 'folder') {
+        const tile = document.createElement('div');
+        tile.className = 'tile tile--folder';
+        tile.style.setProperty('--glow-color', app.glowColor);
+        tile.style.animationDelay = `${index * 70}ms`;
+        tile.setAttribute('role', 'button');
+        tile.setAttribute('tabindex', '0');
+        tile.setAttribute('aria-label', `${app.name} folder`);
+
+        const miniIcons = (app.apps || []).slice(0, 4).map(a => {
+          const d = getDomain(a.url);
+          return `<img class="folder-mini-icon" src="${escapeAttr(a.icon)}" alt=""
+                       data-fallback1="https://www.google.com/s2/favicons?domain=${d}&sz=64"
+                       data-fallback2="app-icons/fallback.svg">`;
+        }).join('');
+
+        tile.innerHTML = `<div class="folder-mini-grid">${miniIcons}</div>`;
+        tile.addEventListener('click', () => openFolder(app));
+        tile.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openFolder(app); }
+        });
+
+        if (editMode) {
+          const removeBtn = document.createElement('button');
+          removeBtn.className = 'tile__remove';
+          removeBtn.setAttribute('aria-label', 'Remove folder');
+          removeBtn.textContent = '×';
+          removeBtn.addEventListener('click', (e) => { e.stopPropagation(); removeApp(app.id); });
+          tile.appendChild(removeBtn);
+        }
+
+        grid.appendChild(tile);
+        return;
+      }
+
+      // ── Regular app tile ─────────────────────────────────
       const tile = document.createElement('a');
-      tile.className  = 'tile';
-      tile.href       = app.url;
-      tile.dataset.appId = app.id;
+      tile.className = 'tile';
+      tile.href      = app.url;
       tile.style.setProperty('--glow-color', app.glowColor);
       tile.setAttribute('aria-label', app.name);
       tile.setAttribute('role', 'listitem');
-
-      // Stagger entrance animations
       tile.style.animationDelay = `${index * 70}ms`;
 
-      // Icon with fallback
-      const iconSrc = app.icon || `https://www.google.com/s2/favicons?domain=${getDomain(app.url)}&sz=128`;
+      const domain    = getDomain(app.url);
+      const iconSrc   = app.icon || `https://logo.clearbit.com/${domain}`;
+      const fallback1 = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
 
       tile.innerHTML = `
         <div class="tile__icon-wrap">
-          <img
-            class="tile__icon"
-            src="${escapeAttr(iconSrc)}"
-            alt=""
-            draggable="false"
-            onerror="this.src='app-icons/fallback.svg'"
-          >
+          <img class="tile__icon" src="${escapeAttr(iconSrc)}" alt=""
+               draggable="false"
+               data-fallback1="${escapeAttr(fallback1)}"
+               data-fallback2="app-icons/fallback.svg">
         </div>
         <span class="tile__name">${escapeHtml(app.name)}</span>
       `;
 
-      if (editMode) {
+      if (!inFolder && editMode) {
         const removeBtn = document.createElement('button');
         removeBtn.className = 'tile__remove';
         removeBtn.setAttribute('aria-label', `Remove ${app.name}`);
         removeBtn.textContent = '×';
         removeBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          removeApp(app.id);
+          e.preventDefault(); e.stopPropagation(); removeApp(app.id);
         });
         tile.appendChild(removeBtn);
       }
 
-      // Prevent navigation in edit mode
-      tile.addEventListener('click', (e) => {
-        if (editMode) e.preventDefault();
-      });
-
+      tile.addEventListener('click', (e) => { if (editMode) e.preventDefault(); });
       grid.appendChild(tile);
     });
   }
@@ -205,7 +395,10 @@
 
   // Close on Escape
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && settingsPanel.classList.contains('open')) closePanel();
+    if (e.key === 'Escape') {
+      if (currentView.type === 'folder') { closeFolderView(); return; }
+      if (settingsPanel.classList.contains('open')) closePanel();
+    }
   });
 
   // Close on outside click
@@ -287,7 +480,9 @@
     apps      = JSON.parse(JSON.stringify(DEFAULT_APPS));
     tileSize  = 'large';
     animSpeed = 'normal';
-    saveSettings();
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      chrome.storage.sync.set({ apps, tileSize, animSpeed, storageVersion: STORAGE_VERSION });
+    }
     applySettingsToUI();
     renderTiles();
   });
@@ -309,6 +504,61 @@
     // HTML data attribute (read by stars.js)
     document.documentElement.dataset.animSpeed = animSpeed;
   }
+
+  /* ----------------------------------------------------------
+     Folder open / close — full-page view switch
+  ---------------------------------------------------------- */
+  function openFolder(folder) {
+    currentView = { type: 'folder', folder };
+    renderTiles();
+    showBackButton();
+  }
+
+  function closeFolderView() {
+    currentView = { type: 'main' };
+    renderTiles();
+    hideBackButton();
+  }
+
+  function showBackButton() {
+    let btn = document.getElementById('back-btn');
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.id = 'back-btn';
+      btn.className = 'back-btn';
+      btn.setAttribute('aria-label', 'Back to home');
+      btn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+             stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Back
+      `;
+      btn.addEventListener('click', closeFolderView);
+      document.body.appendChild(btn);
+    }
+    requestAnimationFrame(() => btn.classList.add('visible'));
+  }
+
+  function hideBackButton() {
+    const btn = document.getElementById('back-btn');
+    if (btn) btn.classList.remove('visible');
+  }
+
+  /* ----------------------------------------------------------
+     Icon fallback chain — handles tiles + folder modal images
+  ---------------------------------------------------------- */
+  document.body.addEventListener('error', (e) => {
+    const img = e.target;
+    if (img.tagName !== 'IMG') return;
+    if (!img.dataset.failed1 && img.dataset.fallback1) {
+      img.dataset.failed1 = '1';
+      img.src = img.dataset.fallback1;
+    } else if (!img.dataset.failed2 && img.dataset.fallback2) {
+      img.dataset.failed2 = '1';
+      img.src = img.dataset.fallback2;
+    }
+  }, true);
 
   /* ----------------------------------------------------------
      Boot

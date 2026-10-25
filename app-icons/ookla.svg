@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="ookBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#0d0d1a"/>
+    </linearGradient>
+    <linearGradient id="ookArc" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#00b996"/>
+      <stop offset="100%" stop-color="#00e0b8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="128" height="128" rx="22" fill="url(#ookBg)"/>
+
+  <!-- Speedometer arc — semi-circle from ~210° to ~330° -->
+  <!-- Using a path for the arc -->
+  <path
+    d="M 24 80 A 40 40 0 1 1 104 80"
+    fill="none"
+    stroke="rgba(255,255,255,0.12)"
+    stroke-width="10"
+    stroke-linecap="round"
+  />
+  <!-- Filled arc ~60% -->
+  <path
+    d="M 24 80 A 40 40 0 1 1 95 50"
+    fill="none"
+    stroke="url(#ookArc)"
+    stroke-width="10"
+    stroke-linecap="round"
+  />
+
+  <!-- Needle -->
+  <line x1="64" y1="80" x2="90" y2="42"
+        stroke="white" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Centre dot -->
+  <circle cx="64" cy="80" r="6" fill="white"/>
+</svg>

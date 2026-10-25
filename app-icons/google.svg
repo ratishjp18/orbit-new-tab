@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- White background -->
+  <rect width="128" height="128" rx="22" fill="#ffffff"/>
+
+  <!-- Google "G" mark -->
+  <!-- Right horizontal bar -->
+  <rect x="64" y="56" width="38" height="18" rx="4" fill="#4285f4"/>
+
+  <!-- Arc path approximated with a clipped circle -->
+  <clipPath id="gc">
+    <rect x="16" y="16" width="96" height="96"/>
+  </clipPath>
+
+  <!-- Outer ring -->
+  <circle cx="64" cy="64" r="38" fill="none" stroke="#34a853" stroke-width="18"
+          stroke-dasharray="42 200" stroke-dashoffset="-6"
+          transform="rotate(-10 64 64)" clip-path="url(#gc)"/>
+  <circle cx="64" cy="64" r="38" fill="none" stroke="#fbbc05" stroke-width="18"
+          stroke-dasharray="36 200" stroke-dashoffset="-130"
+          transform="rotate(-10 64 64)" clip-path="url(#gc)"/>
+  <circle cx="64" cy="64" r="38" fill="none" stroke="#ea4335" stroke-width="18"
+          stroke-dasharray="52 200" stroke-dashoffset="-168"
+          transform="rotate(-10 64 64)" clip-path="url(#gc)"/>
+  <circle cx="64" cy="64" r="38" fill="none" stroke="#4285f4" stroke-width="18"
+          stroke-dasharray="88 200" stroke-dashoffset="0"
+          transform="rotate(-10 64 64)" clip-path="url(#gc)"/>
+
+  <!-- White inner circle to create ring -->
+  <circle cx="64" cy="64" r="26" fill="#ffffff"/>
+
+  <!-- White notch for the G gap -->
+  <rect x="62" y="44" width="40" height="20" fill="#ffffff"/>
+
+  <!-- Re-draw the blue right arm of the G -->
+  <rect x="64" y="56" width="36" height="16" rx="3" fill="#4285f4"/>
+</svg>

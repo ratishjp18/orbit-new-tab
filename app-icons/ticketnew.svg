@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="tnBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#c2410c"/>
+    </linearGradient>
+    <clipPath id="ticketClip">
+      <!-- clip to ticket shape minus the notches -->
+      <path d="
+        M 14 42 Q 14 36, 20 36 L 108 36 Q 114 36, 114 42
+        L 114 56 Q 104 56, 104 64 Q 104 72, 114 72
+        L 114 86 Q 114 92, 108 92 L 20 92 Q 14 92, 14 86
+        L 14 72 Q 24 72, 24 64 Q 24 56, 14 56 Z
+      "/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="128" height="128" rx="22" fill="url(#tnBg)"/>
+
+  <!-- Ticket body -->
+  <path
+    fill="white"
+    d="
+      M 14 42 Q 14 36 20 36 L 108 36 Q 114 36 114 42
+      L 114 56 Q 104 56 104 64 Q 104 72 114 72
+      L 114 86 Q 114 92 108 92 L 20 92 Q 14 92 14 86
+      L 14 72 Q 24 72 24 64 Q 24 56 14 56 Z
+    "
+  />
+
+  <!-- Perforation divider line (dotted) -->
+  <line x1="38" y1="36" x2="38" y2="92"
+        stroke="#f97316" stroke-width="2.5"
+        stroke-dasharray="5 4"/>
+
+  <!-- Five-pointed star centred in the main ticket area -->
+  <polygon
+    points="76,50 79,60 90,60 81,67 84,77 76,71 68,77 71,67 62,60 73,60"
+    fill="#f97316"
+  />
+</svg>

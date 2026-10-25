@@ -47,7 +47,7 @@
       this.size = Math.random() * 1.6 + 0.25;
 
       // Drift speed — larger stars (closer) drift faster
-      this.speed = (this.size / 1.85) * (Math.random() * 0.10 + 0.04);
+      this.speed = (this.size / 1.85) * (Math.random() * 0.28 + 0.14);
 
       this.baseOpacity  = Math.random() * 0.60 + 0.25;
       this.opacity      = this.baseOpacity;
@@ -107,9 +107,9 @@
       // Start from upper-center area, travel diagonally down-right
       this.x      = Math.random() * canvas.width  * 0.55 + canvas.width  * 0.1;
       this.y      = Math.random() * canvas.height * 0.35;
-      this.length = Math.random() * 130 + 60;
+      this.length = Math.random() * 180 + 90;
       this.angle  = Math.PI / 4 + (Math.random() - 0.5) * 0.25;
-      this.spd    = Math.random() * 7 + 5;
+      this.spd    = Math.random() * 12 + 9;
       this.life   = 1.0;
       this.decay  = Math.random() * 0.014 + 0.009;
     }
@@ -165,13 +165,14 @@
      Spawn shooting star at random (~1.5% chance per second)
   ---------------------------------------------------------- */
   let shootingCooldown = 0;
+  const MAX_SHOOTING = 4; // allow several meteors at once
 
   function maybeShoot(dt) {
     if (REDUCED_MOTION) return;
     shootingCooldown -= dt;
-    if (shootingCooldown <= 0) {
-      // Random wait between 4 and 18 seconds
-      shootingCooldown = (Math.random() * 14000 + 4000);
+    if (shootingCooldown <= 0 && shootingStars.filter(s => s.active).length < MAX_SHOOTING) {
+      // Random wait between 0.6 and 3 seconds
+      shootingCooldown = (Math.random() * 2400 + 600);
       shootingStars.push(new ShootingStar());
     }
   }
@@ -229,7 +230,7 @@
   function init() {
     resize();
     stars = Array.from({ length: STAR_COUNT }, () => new Star());
-    shootingCooldown = Math.random() * 6000 + 3000; // first star after 3-9 s
+    shootingCooldown = Math.random() * 1000 + 500; // first meteor after 0.5-1.5 s
 
     if (REDUCED_MOTION) {
       // Draw once, static

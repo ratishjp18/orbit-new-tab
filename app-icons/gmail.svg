@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- White background -->
+  <rect width="128" height="128" rx="22" fill="#ffffff"/>
+
+  <!-- Gmail envelope flap (M shape) -->
+  <!-- Left red triangle -->
+  <polygon points="16,38 64,72 16,106" fill="#ea4335"/>
+  <!-- Right green triangle -->
+  <polygon points="112,38 64,72 112,106" fill="#34a853"/>
+  <!-- Bottom bar -->
+  <rect x="16" y="90" width="96" height="18" rx="0" fill="#fbbc05"/>
+  <rect x="16" y="90" width="48" height="18" fill="#ea4335"/>
+  <!-- Top M flap -->
+  <polygon points="16,38 64,72 112,38 112,32 64,66 16,32" fill="#c5221f"/>
+  <!-- White inner body -->
+  <rect x="16" y="38" width="96" height="68" fill="none"/>
+  <!-- Envelope outline clean redraw -->
+
+  <!-- Clean Gmail M-logo approach -->
+  <!-- Background white -->
+  <rect x="12" y="30" width="104" height="68" rx="6" fill="white"/>
+  <!-- Left flap red -->
+  <polygon points="12,30 64,70 12,98" fill="#ea4335"/>
+  <!-- Right flap blue -->
+  <polygon points="116,30 64,70 116,98" fill="#4285f4"/>
+  <!-- Bottom left green -->
+  <polygon points="12,98 40,98 12,78" fill="#34a853"/>
+  <!-- Bottom right yellow -->
+  <polygon points="116,98 88,98 116,78" fill="#fbbc05"/>
+  <!-- M top bar -->
+  <polygon points="12,30 64,70 116,30 116,36 64,76 12,36" fill="#c5221f"/>
+</svg>
