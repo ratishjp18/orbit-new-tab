@@ -10,7 +10,7 @@
   /* ----------------------------------------------------------
      Constants
   ---------------------------------------------------------- */
-  const STORAGE_VERSION = 25;
+  const STORAGE_VERSION = 26;
   const COLS            = 6;           // columns per page
   const ROWS            = 2;           // rows per page
   const PAGE_SIZE       = COLS * ROWS; // 12 slots
@@ -117,7 +117,7 @@
     },
     {
       id: 'plex',     name: 'Plex',
-      url:  'https://www.plex.tv',
+      url:  'https://app.plex.tv/desktop/#!/',
       icon: 'https://logo.clearbit.com/plex.tv',
       glowColor: 'rgba(229, 160, 13, 0.55)'
     },
@@ -185,7 +185,7 @@
     },
     {
       id: 'district', name: 'District',
-      url:  'https://www.districtapp.in',
+      url:  'https://www.district.in/',
       icon: 'app-icons/district.jpg',
       glowColor: 'rgba(147, 51, 234, 0.60)'
     },
@@ -194,6 +194,12 @@
       url:  'https://www.proxysite.com',
       icon: 'app-icons/proxy.svg',
       glowColor: 'rgba(67, 56, 202, 0.60)'
+    },
+    {
+      id: 'linkedin', name: 'LinkedIn',
+      url:  'https://www.linkedin.com/',
+      icon: 'https://logo.clearbit.com/linkedin.com',
+      glowColor: 'rgba(10, 102, 194, 0.55)'
     }
   ];
 
