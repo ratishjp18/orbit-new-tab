@@ -70,7 +70,7 @@ body {
 }
 
 /* ============================================================
-   Nebula layers
+   Nebula colour — hue-rotate applied to the whole nebula layer
    ============================================================ */
 .nebula-layer {
   position: fixed;
@@ -78,6 +78,8 @@ body {
   z-index: 1;
   pointer-events: none;
   overflow: hidden;
+  filter: hue-rotate(var(--nebula-hue, 0deg));
+  transition: filter 0.4s ease;
 }
 
 .nebula {
@@ -489,6 +491,126 @@ body {
   color: rgba(255, 255, 255, 0.35);
   pointer-events: none;
   user-select: none;
+}
+
+/* ============================================================
+   Quick search bar
+   ============================================================ */
+.quick-search {
+  position: fixed;
+  inset: 0;
+  z-index: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0);
+  pointer-events: none;
+  transition: background 0.22s ease;
+}
+
+.quick-search.visible {
+  background: rgba(0, 0, 0, 0.45);
+  pointer-events: all;
+}
+
+.quick-search__inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(580px, 88vw);
+  background: rgba(12, 3, 28, 0.94);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 18px;
+  padding: 14px 20px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  transform: translateY(20px) scale(0.96);
+  opacity: 0;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+              opacity   0.20s ease;
+}
+
+.quick-search.visible .quick-search__inner {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.quick-search__icon {
+  width: 20px;
+  height: 20px;
+  color: rgba(255, 255, 255, 0.45);
+  flex-shrink: 0;
+}
+
+.quick-search__input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 1.05rem;
+  font-family: inherit;
+  caret-color: rgba(139, 92, 246, 0.9);
+}
+
+.quick-search__input::placeholder {
+  color: rgba(255, 255, 255, 0.28);
+}
+
+.quick-search__esc {
+  font-size: 0.65rem;
+  font-family: inherit;
+  color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 3px 7px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   Nebula hue slider
+   ============================================================ */
+.hue-slider {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(90deg,
+    hsl(0,70%,55%), hsl(60,70%,55%), hsl(120,70%,45%),
+    hsl(180,70%,45%), hsl(240,70%,60%), hsl(300,70%,55%), hsl(360,70%,55%)
+  );
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  outline: none;
+  border: none;
+}
+
+.hue-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+/* ============================================================
+   Idle glow
+   ============================================================ */
+@keyframes idleGlow {
+  0%, 100% { filter: none; }
+  50%      { filter: drop-shadow(0 0 18px var(--glow-color, rgba(255,255,255,0.4)))
+                     drop-shadow(0 0 36px var(--glow-color, rgba(255,255,255,0.2))); }
+}
+
+.tile--idle-glow .tile__icon-wrap {
+  animation: idleGlow 2s ease-in-out !important;
+  animation-play-state: running !important;
 }
 
 /* ============================================================

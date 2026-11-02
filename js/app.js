@@ -10,7 +10,7 @@
   /* ----------------------------------------------------------
      Constants
   ---------------------------------------------------------- */
-  const STORAGE_VERSION = 26;
+  const STORAGE_VERSION = 27;
   const COLS            = 6;           // columns per page
   const ROWS            = 2;           // rows per page
   const PAGE_SIZE       = COLS * ROWS; // 12 slots
@@ -208,6 +208,7 @@
   ---------------------------------------------------------- */
   let tileSize  = 'large';
   let bgSpeed   = 'fast';
+  let nebulaHue = 0;
   let currentPage     = 0;
   let totalPages      = 0;
   let isTransitioning = false;
@@ -219,16 +220,18 @@
   function loadSettings() {
     return new Promise((resolve) => {
       if (typeof chrome !== 'undefined' && chrome.storage) {
-        chrome.storage.sync.get(['tileSize', 'bgSpeed', 'storageVersion'], (data) => {
+        chrome.storage.sync.get(['tileSize', 'bgSpeed', 'nebulaHue', 'storageVersion'], (data) => {
           if (data.storageVersion !== STORAGE_VERSION) {
-            tileSize = 'large';
-            bgSpeed  = 'fast';
+            tileSize  = 'large';
+            bgSpeed   = 'fast';
+            nebulaHue = 0;
             chrome.storage.sync.clear(() => {
-              chrome.storage.sync.set({ tileSize, bgSpeed, storageVersion: STORAGE_VERSION });
+              chrome.storage.sync.set({ tileSize, bgSpeed, nebulaHue, storageVersion: STORAGE_VERSION });
             });
           } else {
-            tileSize = data.tileSize || 'large';
-            bgSpeed  = data.bgSpeed  || 'fast';
+            tileSize  = data.tileSize  || 'large';
+            bgSpeed   = data.bgSpeed   || 'fast';
+            nebulaHue = data.nebulaHue ?? 0;
           }
           resolve();
         });
@@ -240,7 +243,7 @@
 
   function saveSettings() {
     if (typeof chrome !== 'undefined' && chrome.storage) {
-      chrome.storage.sync.set({ tileSize, bgSpeed, storageVersion: STORAGE_VERSION });
+      chrome.storage.sync.set({ tileSize, bgSpeed, nebulaHue, storageVersion: STORAGE_VERSION });
     }
   }
 
@@ -571,11 +574,19 @@
     });
   });
 
+  // Nebula hue slider
+  document.getElementById('nebula-hue').addEventListener('input', (e) => {
+    nebulaHue = parseInt(e.target.value, 10);
+    applyNebulaHue();
+    saveSettings();
+  });
+
   // Reset
   document.getElementById('reset-btn').addEventListener('click', () => {
     if (!confirm('Reset tile size and animation to defaults?')) return;
-    tileSize = 'large';
-    bgSpeed  = 'fast';
+    tileSize  = 'large';
+    bgSpeed   = 'fast';
+    nebulaHue = 0;
     saveSettings();
     applySettingsToUI();
     buildPages();
@@ -589,6 +600,13 @@
       btn.classList.toggle('active', btn.dataset.bgspeed === bgSpeed);
     });
     document.documentElement.dataset.bgSpeed = bgSpeed;
+    applyNebulaHue();
+    const slider = document.getElementById('nebula-hue');
+    if (slider) slider.value = nebulaHue;
+  }
+
+  function applyNebulaHue() {
+    document.documentElement.style.setProperty('--nebula-hue', `${nebulaHue}deg`);
   }
 
   /* ----------------------------------------------------------
@@ -624,6 +642,88 @@
     document.body.appendChild(line);
     line.addEventListener('animationend', () => line.remove(), { once: true });
   }
+
+  /* ----------------------------------------------------------
+     Quick search bar
+  ---------------------------------------------------------- */
+  (function setupQuickSearch() {
+    const overlay = document.getElementById('quick-search');
+    const input   = document.getElementById('quick-search-input');
+
+    function openSearch(char) {
+      overlay.classList.add('visible');
+      input.value = char || '';
+      setTimeout(() => input.focus(), 20);
+    }
+
+    function closeSearch() {
+      overlay.classList.remove('visible');
+      input.blur();
+    }
+
+    function submitSearch() {
+      const q = input.value.trim();
+      if (q) window.location.href = `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+      else closeSearch();
+    }
+
+    // Printable keypress opens the bar
+    document.addEventListener('keydown', (e) => {
+      if (overlay.classList.contains('visible')) return;
+      if (document.getElementById('settings-panel').classList.contains('open')) return;
+      if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        openSearch(e.key);
+      }
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter')  { e.preventDefault(); submitSearch(); }
+      if (e.key === 'Escape') { e.preventDefault(); closeSearch();  }
+    });
+
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeSearch();
+    });
+  })();
+
+  /* ----------------------------------------------------------
+     Idle glow
+  ---------------------------------------------------------- */
+  (function setupIdleGlow() {
+    let idleTimer;
+    let glowInterval;
+
+    function startGlow() {
+      glowInterval = setInterval(() => {
+        // Only pick from tiles on the currently visible page
+        const pages = document.querySelectorAll('.page');
+        const activePage = pages[currentPage];
+        if (!activePage) return;
+
+        const tiles = [...activePage.querySelectorAll(
+          '.tile:not(.tile--empty):not(.tile--idle-glow)'
+        )];
+        if (!tiles.length) return;
+
+        const tile = tiles[Math.floor(Math.random() * tiles.length)];
+        tile.classList.add('tile--idle-glow');
+        tile.addEventListener('animationend', () => {
+          tile.classList.remove('tile--idle-glow');
+        }, { once: true });
+      }, 1800);
+    }
+
+    function resetIdle() {
+      clearTimeout(idleTimer);
+      clearInterval(glowInterval);
+      idleTimer = setTimeout(startGlow, 5000);
+    }
+
+    document.addEventListener('mousemove', resetIdle, { passive: true });
+    document.addEventListener('keydown',   resetIdle, { passive: true });
+    document.addEventListener('wheel',     resetIdle, { passive: true });
+    resetIdle();
+  })();
 
   /* ----------------------------------------------------------
      First-run scroll hint
