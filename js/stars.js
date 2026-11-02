@@ -17,6 +17,14 @@
   const SHOOT_MAX_MS    = 1500;  // max gap
   const MAX_SHOOTING    = 2;     // simultaneous shooting stars
 
+  // Comet colour tints (RGB strings)
+  const COMET_TINTS = [
+    '255,255,255', // white
+    '180,210,255', // cool blue
+    '210,180,255', // violet
+    '255,245,180', // warm gold
+  ];
+
   // Speed multipliers per background-speed setting
   const SPEED_MULT = {
     slow:   0.35,
@@ -121,6 +129,7 @@
       this.spd   = Math.random() * 16 + 10;
       this.life  = 1.0;
       this.decay = Math.random() * 0.011 + 0.007;
+      this.color = COMET_TINTS[Math.floor(Math.random() * COMET_TINTS.length)];
     }
 
     update(dt) {
@@ -138,8 +147,8 @@
       const tailY = this.y - Math.sin(this.angle) * this.length * this.life;
 
       const grad = ctx.createLinearGradient(tailX, tailY, this.x, this.y);
-      grad.addColorStop(0, 'rgba(255,255,255,0)');
-      grad.addColorStop(1, `rgba(255,255,255,${this.life * 0.92})`);
+      grad.addColorStop(0, `rgba(${this.color},0)`);
+      grad.addColorStop(1, `rgba(${this.color},${this.life * 0.92})`);
 
       ctx.save();
       ctx.strokeStyle = grad;

@@ -300,7 +300,15 @@
      Build a single tile element
   ---------------------------------------------------------- */
   function createTileEl(app, index) {
-    const delay = `${index * 55}ms`;
+    // Wave stagger: centre columns animate first, edges last
+    const col            = index % COLS;
+    const row            = Math.floor(index / COLS);
+    const distFromCentre = Math.abs(col - (COLS - 1) / 2);
+    const delay          = `${Math.round(distFromCentre * 50 + row * 90)}ms`;
+
+    // Unique idle float period + phase per tile for a natural feel
+    const floatDur   = (3.0 + (index * 0.31 % 1.8)).toFixed(2);
+    const floatDelay = (index * 0.43 % 4.0).toFixed(2);
 
     // ── Incognito special tile ──────────────────────────────
     if (app.type === 'incognito') {
@@ -308,13 +316,16 @@
       tile.className = 'tile';
       tile.style.setProperty('--glow-color', app.glowColor);
       tile.style.animationDelay = delay;
+      tile.style.setProperty('--float-dur',   `${floatDur}s`);
+      tile.style.setProperty('--float-delay', `${floatDelay}s`);
       tile.setAttribute('role', 'button');
       tile.setAttribute('tabindex', '0');
       tile.setAttribute('aria-label', 'Open Incognito window');
       tile.innerHTML = `
         <div class="tile__icon-wrap">
           <img class="tile__icon" src="${escapeAttr(app.icon)}" alt="" draggable="false">
-        </div>`;
+        </div>
+        <span class="tile__tooltip">${app.name}</span>`;
 
       const launch = () => {
         if (typeof chrome !== 'undefined' && chrome.windows) {
@@ -338,6 +349,8 @@
     tile.href      = app.url;
     tile.style.setProperty('--glow-color', app.glowColor);
     tile.style.animationDelay = delay;
+    tile.style.setProperty('--float-dur',   `${floatDur}s`);
+    tile.style.setProperty('--float-delay', `${floatDelay}s`);
     tile.setAttribute('aria-label', app.name);
 
     const domain    = getDomain(app.url);
@@ -352,7 +365,8 @@
              draggable="false"
              data-fallback1="${escapeAttr(fallback1)}"
              data-fallback2="app-icons/fallback.svg">
-      </div>`;
+      </div>
+      <span class="tile__tooltip">${app.name}</span>`;
 
     return tile;
   }
@@ -361,9 +375,38 @@
      Page navigation
   ---------------------------------------------------------- */
   function goToPage(index, animate = true) {
-    currentPage = Math.max(0, Math.min(index, totalPages - 1));
-
     const track = document.getElementById('pages-track');
+
+    // ── Wrap-around: instant fade+snap so it doesn't slide 200vh ──
+    const isWrap = animate && (
+      (index === 0 && currentPage === totalPages - 1) ||          // last → first
+      (index === totalPages - 1 && currentPage === 0)             // first → last
+    );
+
+    if (isWrap) {
+      isTransitioning = true;
+      navCooldown = true;
+      track.style.transition = 'opacity 0.18s ease';
+      track.style.opacity = '0';
+      setTimeout(() => {
+        track.style.transition = 'none';
+        track.style.transform  = `translateY(${-index * 100}vh)`;
+        currentPage = index;
+        updatePageDots();
+        void track.getBoundingClientRect();
+        track.style.transition = 'opacity 0.18s ease';
+        track.style.opacity    = '1';
+        setTimeout(() => {
+          track.style.opacity    = '';
+          track.style.transition = '';
+          isTransitioning = false;
+          navCooldown = false;
+        }, 220);
+      }, 200);
+      return;
+    }
+
+    currentPage = Math.max(0, Math.min(index, totalPages - 1));
 
     if (animate) {
       // Warp-pulse overlay
@@ -378,16 +421,14 @@
         }, 200);
       });
 
-      // Slight blur on the sliding track
       track.classList.add('pages-track--sliding');
-
-      track.style.transition = 'transform 0.55s cubic-bezier(0.77, 0, 0.175, 1)';
+      track.style.transition = 'transform 0.35s cubic-bezier(0.77, 0, 0.175, 1)';
       isTransitioning = true;
 
       setTimeout(() => {
         track.classList.remove('pages-track--sliding');
         isTransitioning = false;
-      }, 600);
+      }, 400);
 
     } else {
       track.style.transition = 'none';
@@ -399,11 +440,14 @@
 
   function navigate(dir) {
     if (isTransitioning || navCooldown) return;
-    const next = currentPage + dir;
-    if (next < 0 || next >= totalPages) return;
+    let next = currentPage + dir;
+
+    // Full circular wrap
+    if (next >= totalPages) next = 0;                  // last → first
+    if (next < 0) next = totalPages - 1;               // first → last
 
     navCooldown = true;
-    setTimeout(() => { navCooldown = false; }, 700);
+    setTimeout(() => { navCooldown = false; }, 450);
     goToPage(next);
   }
 
@@ -417,11 +461,27 @@
       navigate(e.deltaY > 0 ? 1 : -1);
     }, { passive: false });
 
-    // Keyboard
+    // Keyboard arrows / page keys
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); navigate(1);  }
       if (e.key === 'ArrowUp'   || e.key === 'PageUp')   { e.preventDefault(); navigate(-1); }
+      // Ctrl+1 / Ctrl+2 / … — jump directly to a page
+      if (e.ctrlKey && e.key >= '1' && e.key <= '9') {
+        e.preventDefault();
+        goToPage(parseInt(e.key, 10) - 1);
+      }
     });
+
+    // Touch / swipe (tablets, phones)
+    let touchStartY = 0;
+    document.addEventListener('touchstart', (e) => {
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+      const delta = touchStartY - e.changedTouches[0].clientY;
+      if (Math.abs(delta) < 40) return;
+      navigate(delta > 0 ? 1 : -1);
+    }, { passive: true });
   }
 
   /* ----------------------------------------------------------
@@ -438,12 +498,19 @@
       dot.addEventListener('click', () => goToPage(i));
       nav.appendChild(dot);
     }
+    updatePageCounter();
   }
 
   function updatePageDots() {
     document.querySelectorAll('.page-dot').forEach((dot, i) => {
       dot.classList.toggle('page-dot--active', i === currentPage);
     });
+    updatePageCounter();
+  }
+
+  function updatePageCounter() {
+    const el = document.getElementById('page-counter');
+    if (el) el.textContent = `${currentPage + 1} / ${totalPages}`;
   }
 
   /* ----------------------------------------------------------
@@ -551,6 +618,32 @@
     return String(s).replace(/"/g, '&quot;');
   }
 
+  function spawnScanLine(dir) {
+    const line = document.createElement('div');
+    line.className = `page-scan-line page-scan-line--${dir > 0 ? 'down' : 'up'}`;
+    document.body.appendChild(line);
+    line.addEventListener('animationend', () => line.remove(), { once: true });
+  }
+
+  /* ----------------------------------------------------------
+     First-run scroll hint
+  ---------------------------------------------------------- */
+  function showScrollHint() {
+    if (localStorage.getItem('orbitHinted') || totalPages < 2) return;
+    localStorage.setItem('orbitHinted', '1');
+
+    const hint = document.createElement('div');
+    hint.className = 'scroll-hint';
+    hint.textContent = '↕  Scroll to switch pages';
+    document.body.appendChild(hint);
+
+    setTimeout(() => hint.classList.add('visible'), 800);
+    setTimeout(() => {
+      hint.classList.remove('visible');
+      hint.addEventListener('transitionend', () => hint.remove(), { once: true });
+    }, 4000);
+  }
+
   /* ----------------------------------------------------------
      Boot
   ---------------------------------------------------------- */
@@ -559,6 +652,7 @@
     applySettingsToUI();
     buildPages();
     setupNavigation();
+    showScrollHint();
   }
 
   init();
