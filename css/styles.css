@@ -327,6 +327,34 @@ body {
 }
 
 /* ============================================================
+   Page transition effects
+   ============================================================ */
+
+/* Brief blur on the sliding track */
+.pages-track--sliding {
+  filter: blur(1.5px) brightness(0.92);
+  transition: filter 0.22s ease !important;
+}
+
+/* Purple warp pulse — flashes at centre during page change */
+.page-warp-pulse {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(ellipse at 50% 50%,
+    rgba(139, 92, 246, 0.18) 0%,
+    rgba(59,   7, 100, 0.10) 40%,
+    transparent 70%);
+  transition: opacity 0.20s ease;
+}
+
+.page-warp-pulse.visible {
+  opacity: 1;
+}
+
+/* ============================================================
    Page indicator dots — right edge, vertically centred
    ============================================================ */
 .page-dots {

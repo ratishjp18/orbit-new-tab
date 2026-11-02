@@ -366,9 +366,29 @@
     const track = document.getElementById('pages-track');
 
     if (animate) {
-      track.style.transition  = 'transform 0.55s cubic-bezier(0.77, 0, 0.175, 1)';
+      // Warp-pulse overlay
+      const pulse = document.createElement('div');
+      pulse.className = 'page-warp-pulse';
+      document.body.appendChild(pulse);
+      requestAnimationFrame(() => {
+        pulse.classList.add('visible');
+        setTimeout(() => {
+          pulse.classList.remove('visible');
+          pulse.addEventListener('transitionend', () => pulse.remove(), { once: true });
+        }, 200);
+      });
+
+      // Slight blur on the sliding track
+      track.classList.add('pages-track--sliding');
+
+      track.style.transition = 'transform 0.55s cubic-bezier(0.77, 0, 0.175, 1)';
       isTransitioning = true;
-      setTimeout(() => { isTransitioning = false; }, 600);
+
+      setTimeout(() => {
+        track.classList.remove('pages-track--sliding');
+        isTransitioning = false;
+      }, 600);
+
     } else {
       track.style.transition = 'none';
     }

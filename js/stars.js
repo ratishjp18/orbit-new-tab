@@ -13,9 +13,9 @@
   const STAR_COUNT      = 200;   // max stars (keep low for CPU)
   const STAR_SPEED_BASE = 0.90;  // px per 16 ms at 1× multiplier (~3× old value)
   const TWINKLE_SPEED   = 0.042; // radians per 16 ms  (~2× old value)
-  const SHOOT_MIN_MS    = 5000;  // min gap between shooting stars
-  const SHOOT_MAX_MS    = 10000; // max gap
-  const MAX_SHOOTING    = 3;     // simultaneous shooting stars
+  const SHOOT_MIN_MS    = 500;   // min gap between shooting stars
+  const SHOOT_MAX_MS    = 1500;  // max gap
+  const MAX_SHOOTING    = 2;     // simultaneous shooting stars
 
   // Speed multipliers per background-speed setting
   const SPEED_MULT = {
