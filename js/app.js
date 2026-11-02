@@ -44,7 +44,7 @@
     {
       id: 'chatgpt',  name: 'ChatGPT',
       url:  'https://chat.openai.com',
-      icon: 'app-icons/chatgpt.png',
+      icon: 'app-icons/chatgpt-logo-chat-gpt-icon-on-black-background-free-vector.jpg',
       glowColor: 'rgba(16, 163, 127, 0.55)'
     },
     {
@@ -118,7 +118,7 @@
     {
       id: 'plex',     name: 'Plex',
       url:  'https://app.plex.tv/desktop/#!/',
-      icon: 'https://logo.clearbit.com/plex.tv',
+      icon: 'app-icons/images.jpeg',
       glowColor: 'rgba(229, 160, 13, 0.55)'
     },
     {
