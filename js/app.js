@@ -10,7 +10,7 @@
   /* ----------------------------------------------------------
      Constants
   ---------------------------------------------------------- */
-  const STORAGE_VERSION = 25;
+  const STORAGE_VERSION = 27;
   const COLS            = 6;           // columns per page
   const ROWS            = 2;           // rows per page
   const PAGE_SIZE       = COLS * ROWS; // 12 slots
@@ -44,7 +44,7 @@
     {
       id: 'chatgpt',  name: 'ChatGPT',
       url:  'https://chat.openai.com',
-      icon: 'app-icons/chatgpt.png',
+      icon: 'app-icons/chatgpt-logo-chat-gpt-icon-on-black-background-free-vector.jpg',
       glowColor: 'rgba(16, 163, 127, 0.55)'
     },
     {
@@ -117,8 +117,8 @@
     },
     {
       id: 'plex',     name: 'Plex',
-      url:  'https://www.plex.tv',
-      icon: 'https://logo.clearbit.com/plex.tv',
+      url:  'https://app.plex.tv/desktop/#!/',
+      icon: 'app-icons/images.jpeg',
       glowColor: 'rgba(229, 160, 13, 0.55)'
     },
     {
@@ -185,7 +185,7 @@
     },
     {
       id: 'district', name: 'District',
-      url:  'https://www.districtapp.in',
+      url:  'https://www.district.in/',
       icon: 'app-icons/district.jpg',
       glowColor: 'rgba(147, 51, 234, 0.60)'
     },
@@ -194,6 +194,12 @@
       url:  'https://www.proxysite.com',
       icon: 'app-icons/proxy.svg',
       glowColor: 'rgba(67, 56, 202, 0.60)'
+    },
+    {
+      id: 'linkedin', name: 'LinkedIn',
+      url:  'https://www.linkedin.com/',
+      icon: 'https://logo.clearbit.com/linkedin.com',
+      glowColor: 'rgba(10, 102, 194, 0.55)'
     }
   ];
 
@@ -202,6 +208,7 @@
   ---------------------------------------------------------- */
   let tileSize  = 'large';
   let bgSpeed   = 'fast';
+  let nebulaHue = 0;
   let currentPage     = 0;
   let totalPages      = 0;
   let isTransitioning = false;
@@ -213,16 +220,18 @@
   function loadSettings() {
     return new Promise((resolve) => {
       if (typeof chrome !== 'undefined' && chrome.storage) {
-        chrome.storage.sync.get(['tileSize', 'bgSpeed', 'storageVersion'], (data) => {
+        chrome.storage.sync.get(['tileSize', 'bgSpeed', 'nebulaHue', 'storageVersion'], (data) => {
           if (data.storageVersion !== STORAGE_VERSION) {
-            tileSize = 'large';
-            bgSpeed  = 'fast';
+            tileSize  = 'large';
+            bgSpeed   = 'fast';
+            nebulaHue = 0;
             chrome.storage.sync.clear(() => {
-              chrome.storage.sync.set({ tileSize, bgSpeed, storageVersion: STORAGE_VERSION });
+              chrome.storage.sync.set({ tileSize, bgSpeed, nebulaHue, storageVersion: STORAGE_VERSION });
             });
           } else {
-            tileSize = data.tileSize || 'large';
-            bgSpeed  = data.bgSpeed  || 'fast';
+            tileSize  = data.tileSize  || 'large';
+            bgSpeed   = data.bgSpeed   || 'fast';
+            nebulaHue = data.nebulaHue ?? 0;
           }
           resolve();
         });
@@ -234,7 +243,7 @@
 
   function saveSettings() {
     if (typeof chrome !== 'undefined' && chrome.storage) {
-      chrome.storage.sync.set({ tileSize, bgSpeed, storageVersion: STORAGE_VERSION });
+      chrome.storage.sync.set({ tileSize, bgSpeed, nebulaHue, storageVersion: STORAGE_VERSION });
     }
   }
 
@@ -294,7 +303,15 @@
      Build a single tile element
   ---------------------------------------------------------- */
   function createTileEl(app, index) {
-    const delay = `${index * 55}ms`;
+    // Wave stagger: centre columns animate first, edges last
+    const col            = index % COLS;
+    const row            = Math.floor(index / COLS);
+    const distFromCentre = Math.abs(col - (COLS - 1) / 2);
+    const delay          = `${Math.round(distFromCentre * 50 + row * 90)}ms`;
+
+    // Unique idle float period + phase per tile for a natural feel
+    const floatDur   = (3.0 + (index * 0.31 % 1.8)).toFixed(2);
+    const floatDelay = (index * 0.43 % 4.0).toFixed(2);
 
     // ── Incognito special tile ──────────────────────────────
     if (app.type === 'incognito') {
@@ -302,13 +319,16 @@
       tile.className = 'tile';
       tile.style.setProperty('--glow-color', app.glowColor);
       tile.style.animationDelay = delay;
+      tile.style.setProperty('--float-dur',   `${floatDur}s`);
+      tile.style.setProperty('--float-delay', `${floatDelay}s`);
       tile.setAttribute('role', 'button');
       tile.setAttribute('tabindex', '0');
       tile.setAttribute('aria-label', 'Open Incognito window');
       tile.innerHTML = `
         <div class="tile__icon-wrap">
           <img class="tile__icon" src="${escapeAttr(app.icon)}" alt="" draggable="false">
-        </div>`;
+        </div>
+        <span class="tile__tooltip">${app.name}</span>`;
 
       const launch = () => {
         if (typeof chrome !== 'undefined' && chrome.windows) {
@@ -332,6 +352,8 @@
     tile.href      = app.url;
     tile.style.setProperty('--glow-color', app.glowColor);
     tile.style.animationDelay = delay;
+    tile.style.setProperty('--float-dur',   `${floatDur}s`);
+    tile.style.setProperty('--float-delay', `${floatDelay}s`);
     tile.setAttribute('aria-label', app.name);
 
     const domain    = getDomain(app.url);
@@ -346,7 +368,8 @@
              draggable="false"
              data-fallback1="${escapeAttr(fallback1)}"
              data-fallback2="app-icons/fallback.svg">
-      </div>`;
+      </div>
+      <span class="tile__tooltip">${app.name}</span>`;
 
     return tile;
   }
@@ -355,14 +378,61 @@
      Page navigation
   ---------------------------------------------------------- */
   function goToPage(index, animate = true) {
-    currentPage = Math.max(0, Math.min(index, totalPages - 1));
-
     const track = document.getElementById('pages-track');
 
-    if (animate) {
-      track.style.transition  = 'transform 0.55s cubic-bezier(0.77, 0, 0.175, 1)';
+    // ── Wrap-around: instant fade+snap so it doesn't slide 200vh ──
+    const isWrap = animate && (
+      (index === 0 && currentPage === totalPages - 1) ||          // last → first
+      (index === totalPages - 1 && currentPage === 0)             // first → last
+    );
+
+    if (isWrap) {
       isTransitioning = true;
-      setTimeout(() => { isTransitioning = false; }, 600);
+      navCooldown = true;
+      track.style.transition = 'opacity 0.18s ease';
+      track.style.opacity = '0';
+      setTimeout(() => {
+        track.style.transition = 'none';
+        track.style.transform  = `translateY(${-index * 100}vh)`;
+        currentPage = index;
+        updatePageDots();
+        void track.getBoundingClientRect();
+        track.style.transition = 'opacity 0.18s ease';
+        track.style.opacity    = '1';
+        setTimeout(() => {
+          track.style.opacity    = '';
+          track.style.transition = '';
+          isTransitioning = false;
+          navCooldown = false;
+        }, 220);
+      }, 200);
+      return;
+    }
+
+    currentPage = Math.max(0, Math.min(index, totalPages - 1));
+
+    if (animate) {
+      // Warp-pulse overlay
+      const pulse = document.createElement('div');
+      pulse.className = 'page-warp-pulse';
+      document.body.appendChild(pulse);
+      requestAnimationFrame(() => {
+        pulse.classList.add('visible');
+        setTimeout(() => {
+          pulse.classList.remove('visible');
+          pulse.addEventListener('transitionend', () => pulse.remove(), { once: true });
+        }, 200);
+      });
+
+      track.classList.add('pages-track--sliding');
+      track.style.transition = 'transform 0.35s cubic-bezier(0.77, 0, 0.175, 1)';
+      isTransitioning = true;
+
+      setTimeout(() => {
+        track.classList.remove('pages-track--sliding');
+        isTransitioning = false;
+      }, 400);
+
     } else {
       track.style.transition = 'none';
     }
@@ -373,11 +443,14 @@
 
   function navigate(dir) {
     if (isTransitioning || navCooldown) return;
-    const next = currentPage + dir;
-    if (next < 0 || next >= totalPages) return;
+    let next = currentPage + dir;
+
+    // Full circular wrap
+    if (next >= totalPages) next = 0;                  // last → first
+    if (next < 0) next = totalPages - 1;               // first → last
 
     navCooldown = true;
-    setTimeout(() => { navCooldown = false; }, 700);
+    setTimeout(() => { navCooldown = false; }, 450);
     goToPage(next);
   }
 
@@ -391,11 +464,27 @@
       navigate(e.deltaY > 0 ? 1 : -1);
     }, { passive: false });
 
-    // Keyboard
+    // Keyboard arrows / page keys
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); navigate(1);  }
       if (e.key === 'ArrowUp'   || e.key === 'PageUp')   { e.preventDefault(); navigate(-1); }
+      // Ctrl+1 / Ctrl+2 / … — jump directly to a page
+      if (e.ctrlKey && e.key >= '1' && e.key <= '9') {
+        e.preventDefault();
+        goToPage(parseInt(e.key, 10) - 1);
+      }
     });
+
+    // Touch / swipe (tablets, phones)
+    let touchStartY = 0;
+    document.addEventListener('touchstart', (e) => {
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+      const delta = touchStartY - e.changedTouches[0].clientY;
+      if (Math.abs(delta) < 40) return;
+      navigate(delta > 0 ? 1 : -1);
+    }, { passive: true });
   }
 
   /* ----------------------------------------------------------
@@ -412,12 +501,19 @@
       dot.addEventListener('click', () => goToPage(i));
       nav.appendChild(dot);
     }
+    updatePageCounter();
   }
 
   function updatePageDots() {
     document.querySelectorAll('.page-dot').forEach((dot, i) => {
       dot.classList.toggle('page-dot--active', i === currentPage);
     });
+    updatePageCounter();
+  }
+
+  function updatePageCounter() {
+    const el = document.getElementById('page-counter');
+    if (el) el.textContent = `${currentPage + 1} / ${totalPages}`;
   }
 
   /* ----------------------------------------------------------
@@ -478,11 +574,19 @@
     });
   });
 
+  // Nebula hue slider
+  document.getElementById('nebula-hue').addEventListener('input', (e) => {
+    nebulaHue = parseInt(e.target.value, 10);
+    applyNebulaHue();
+    saveSettings();
+  });
+
   // Reset
   document.getElementById('reset-btn').addEventListener('click', () => {
     if (!confirm('Reset tile size and animation to defaults?')) return;
-    tileSize = 'large';
-    bgSpeed  = 'fast';
+    tileSize  = 'large';
+    bgSpeed   = 'fast';
+    nebulaHue = 0;
     saveSettings();
     applySettingsToUI();
     buildPages();
@@ -496,6 +600,13 @@
       btn.classList.toggle('active', btn.dataset.bgspeed === bgSpeed);
     });
     document.documentElement.dataset.bgSpeed = bgSpeed;
+    applyNebulaHue();
+    const slider = document.getElementById('nebula-hue');
+    if (slider) slider.value = nebulaHue;
+  }
+
+  function applyNebulaHue() {
+    document.documentElement.style.setProperty('--nebula-hue', `${nebulaHue}deg`);
   }
 
   /* ----------------------------------------------------------
@@ -525,6 +636,114 @@
     return String(s).replace(/"/g, '&quot;');
   }
 
+  function spawnScanLine(dir) {
+    const line = document.createElement('div');
+    line.className = `page-scan-line page-scan-line--${dir > 0 ? 'down' : 'up'}`;
+    document.body.appendChild(line);
+    line.addEventListener('animationend', () => line.remove(), { once: true });
+  }
+
+  /* ----------------------------------------------------------
+     Quick search bar
+  ---------------------------------------------------------- */
+  (function setupQuickSearch() {
+    const overlay = document.getElementById('quick-search');
+    const input   = document.getElementById('quick-search-input');
+
+    function openSearch(char) {
+      overlay.classList.add('visible');
+      input.value = char || '';
+      setTimeout(() => input.focus(), 20);
+    }
+
+    function closeSearch() {
+      overlay.classList.remove('visible');
+      input.blur();
+    }
+
+    function submitSearch() {
+      const q = input.value.trim();
+      if (q) window.location.href = `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+      else closeSearch();
+    }
+
+    // Printable keypress opens the bar
+    document.addEventListener('keydown', (e) => {
+      if (overlay.classList.contains('visible')) return;
+      if (document.getElementById('settings-panel').classList.contains('open')) return;
+      if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        openSearch(e.key);
+      }
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter')  { e.preventDefault(); submitSearch(); }
+      if (e.key === 'Escape') { e.preventDefault(); closeSearch();  }
+    });
+
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeSearch();
+    });
+  })();
+
+  /* ----------------------------------------------------------
+     Idle glow
+  ---------------------------------------------------------- */
+  (function setupIdleGlow() {
+    let idleTimer;
+    let glowInterval;
+
+    function startGlow() {
+      glowInterval = setInterval(() => {
+        // Only pick from tiles on the currently visible page
+        const pages = document.querySelectorAll('.page');
+        const activePage = pages[currentPage];
+        if (!activePage) return;
+
+        const tiles = [...activePage.querySelectorAll(
+          '.tile:not(.tile--empty):not(.tile--idle-glow)'
+        )];
+        if (!tiles.length) return;
+
+        const tile = tiles[Math.floor(Math.random() * tiles.length)];
+        tile.classList.add('tile--idle-glow');
+        tile.addEventListener('animationend', () => {
+          tile.classList.remove('tile--idle-glow');
+        }, { once: true });
+      }, 1800);
+    }
+
+    function resetIdle() {
+      clearTimeout(idleTimer);
+      clearInterval(glowInterval);
+      idleTimer = setTimeout(startGlow, 5000);
+    }
+
+    document.addEventListener('mousemove', resetIdle, { passive: true });
+    document.addEventListener('keydown',   resetIdle, { passive: true });
+    document.addEventListener('wheel',     resetIdle, { passive: true });
+    resetIdle();
+  })();
+
+  /* ----------------------------------------------------------
+     First-run scroll hint
+  ---------------------------------------------------------- */
+  function showScrollHint() {
+    if (localStorage.getItem('orbitHinted') || totalPages < 2) return;
+    localStorage.setItem('orbitHinted', '1');
+
+    const hint = document.createElement('div');
+    hint.className = 'scroll-hint';
+    hint.textContent = '↕  Scroll to switch pages';
+    document.body.appendChild(hint);
+
+    setTimeout(() => hint.classList.add('visible'), 800);
+    setTimeout(() => {
+      hint.classList.remove('visible');
+      hint.addEventListener('transitionend', () => hint.remove(), { once: true });
+    }, 4000);
+  }
+
   /* ----------------------------------------------------------
      Boot
   ---------------------------------------------------------- */
@@ -533,6 +752,7 @@
     applySettingsToUI();
     buildPages();
     setupNavigation();
+    showScrollHint();
   }
 
   init();

@@ -19,8 +19,9 @@
     <div class="nebula nebula--4"></div>
   </div>
 
-  <!-- Layer 1: planet -->
+  <!-- Layer 1: faint corner planets -->
   <div class="planet" aria-hidden="true"></div>
+  <div class="planet planet--secondary" aria-hidden="true"></div>
 
   <!-- Layer 2: pages -->
   <main class="main">
@@ -28,6 +29,7 @@
       <div id="pages-track" class="pages-track"></div>
     </div>
     <nav id="page-dots" class="page-dots" aria-label="Page navigation"></nav>
+    <div id="page-counter" class="page-counter" aria-live="polite"></div>
   </main>
 
   <!-- Settings toggle -->
@@ -75,11 +77,32 @@
       </section>
 
       <section class="settings-section">
+        <h3>Nebula Colour</h3>
+        <input type="range" id="nebula-hue" class="hue-slider"
+               min="0" max="360" value="0" step="2">
+      </section>
+
+      <section class="settings-section">
         <button id="reset-btn" class="btn-danger">Reset to Defaults</button>
       </section>
 
     </div>
   </aside>
+
+  <!-- Quick search bar — appears when user starts typing -->
+  <div id="quick-search" class="quick-search" role="search" aria-label="Quick search">
+    <div class="quick-search__inner">
+      <svg class="quick-search__icon" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input id="quick-search-input" class="quick-search__input"
+             type="text" placeholder="Search Google…"
+             autocomplete="off" spellcheck="false">
+      <kbd class="quick-search__esc">ESC</kbd>
+    </div>
+  </div>
 
   <script src="js/stars.js"></script>
   <script src="js/app.js"></script>
