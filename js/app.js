@@ -317,17 +317,24 @@
     grid.className = `page-grid page-grid--${tileSize}`;
     grid.style.gridTemplateColumns = `repeat(${COLS}, 1fr)`;
 
-    apps.forEach((app, i) => {
-      const tile = createTileEl(app, i);
-      grid.appendChild(tile);
-    });
+    const totalSlots = apps.length + emptyCount;
+    for (let i = 0; i < totalSlots; i++) {
+      if (i === COLS) {
+        // Insert dedicated middle row gap for the ambient clock
+        const gap = document.createElement('div');
+        gap.className = 'page-grid__middle-gap';
+        gap.setAttribute('aria-hidden', 'true');
+        grid.appendChild(gap);
+      }
 
-    // Invisible spacer tiles keep the grid geometry intact
-    for (let i = 0; i < emptyCount; i++) {
-      const spacer = document.createElement('div');
-      spacer.className = 'tile tile--empty';
-      spacer.setAttribute('aria-hidden', 'true');
-      grid.appendChild(spacer);
+      if (i < apps.length) {
+        grid.appendChild(createTileEl(apps[i], i));
+      } else {
+        const spacer = document.createElement('div');
+        spacer.className = 'tile tile--empty';
+        spacer.setAttribute('aria-hidden', 'true');
+        grid.appendChild(spacer);
+      }
     }
 
     section.appendChild(grid);
@@ -749,6 +756,8 @@
     const clockEl = document.getElementById('ambient-clock');
     const fmtGroup = document.getElementById('clock-format-group');
     if (fmtGroup) fmtGroup.classList.toggle('disabled', !showClock);
+
+    document.documentElement.dataset.showClock = showClock ? 'on' : 'off';
 
     clearInterval(clockTimer);
     clockTimer = null;
