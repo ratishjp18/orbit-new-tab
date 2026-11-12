@@ -176,6 +176,7 @@
   ---------------------------------------------------------- */
   function maybeShoot(dt) {
     if (REDUCED_MOTION) return;
+    if (document.documentElement.dataset.shootingStars === 'off') return;
     shootCooldown -= dt;
     if (shootCooldown <= 0 &&
         shootingStars.filter(s => s.active).length < MAX_SHOOTING) {

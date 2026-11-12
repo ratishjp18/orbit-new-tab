@@ -206,9 +206,14 @@
   /* ----------------------------------------------------------
      State
   ---------------------------------------------------------- */
-  let tileSize  = 'large';
-  let bgSpeed   = 'fast';
-  let nebulaHue = 0;
+  let tileSize      = 'large';
+  let bgSpeed       = 'fast';
+  let nebulaHue     = 0;
+  let showClock     = false;
+  let clockFormat   = '24h';
+  let idleFloat     = true;
+  let idleGlow      = true;
+  let shootingStars = true;
   let currentPage     = 0;
   let totalPages      = 0;
   let isTransitioning = false;
@@ -217,21 +222,51 @@
   /* ----------------------------------------------------------
      Storage
   ---------------------------------------------------------- */
+  const SETTINGS_KEYS = [
+    'tileSize', 'bgSpeed', 'nebulaHue',
+    'showClock', 'clockFormat', 'idleFloat', 'idleGlow', 'shootingStars',
+    'storageVersion'
+  ];
+
+  function currentSettingsPayload() {
+    return {
+      tileSize,
+      bgSpeed,
+      nebulaHue,
+      showClock,
+      clockFormat,
+      idleFloat,
+      idleGlow,
+      shootingStars,
+      storageVersion: STORAGE_VERSION
+    };
+  }
+
   function loadSettings() {
     return new Promise((resolve) => {
       if (typeof chrome !== 'undefined' && chrome.storage) {
-        chrome.storage.sync.get(['tileSize', 'bgSpeed', 'nebulaHue', 'storageVersion'], (data) => {
+        chrome.storage.sync.get(SETTINGS_KEYS, (data) => {
           if (data.storageVersion !== STORAGE_VERSION) {
-            tileSize  = 'large';
-            bgSpeed   = 'fast';
-            nebulaHue = 0;
+            tileSize      = 'large';
+            bgSpeed       = 'fast';
+            nebulaHue     = 0;
+            showClock     = false;
+            clockFormat   = '24h';
+            idleFloat     = true;
+            idleGlow      = true;
+            shootingStars = true;
             chrome.storage.sync.clear(() => {
-              chrome.storage.sync.set({ tileSize, bgSpeed, nebulaHue, storageVersion: STORAGE_VERSION });
+              chrome.storage.sync.set(currentSettingsPayload());
             });
           } else {
-            tileSize  = data.tileSize  || 'large';
-            bgSpeed   = data.bgSpeed   || 'fast';
-            nebulaHue = data.nebulaHue ?? 0;
+            tileSize      = data.tileSize    || 'large';
+            bgSpeed       = data.bgSpeed     || 'fast';
+            nebulaHue     = data.nebulaHue   ?? 0;
+            showClock     = data.showClock   ?? false;
+            clockFormat   = data.clockFormat || '24h';
+            idleFloat     = data.idleFloat     ?? true;
+            idleGlow      = data.idleGlow      ?? true;
+            shootingStars = data.shootingStars ?? true;
           }
           resolve();
         });
@@ -243,7 +278,7 @@
 
   function saveSettings() {
     if (typeof chrome !== 'undefined' && chrome.storage) {
-      chrome.storage.sync.set({ tileSize, bgSpeed, nebulaHue, storageVersion: STORAGE_VERSION });
+      chrome.storage.sync.set(currentSettingsPayload());
     }
   }
 
@@ -574,23 +609,83 @@
     });
   });
 
+  // Nebula theme presets
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      nebulaHue = parseInt(btn.dataset.hue, 10);
+      applyNebulaHue();
+      syncNebulaControls();
+      saveSettings();
+    });
+  });
+
   // Nebula hue slider
   document.getElementById('nebula-hue').addEventListener('input', (e) => {
     nebulaHue = parseInt(e.target.value, 10);
     applyNebulaHue();
+    syncNebulaControls();
+    saveSettings();
+  });
+
+  // Ambient clock toggle & format
+  document.getElementById('toggle-clock').addEventListener('change', (e) => {
+    showClock = e.target.checked;
+    applyAmbientClock();
+    saveSettings();
+  });
+
+  document.querySelectorAll('.clockfmt-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      clockFormat = btn.dataset.format;
+      document.querySelectorAll('.clockfmt-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderClock();
+      saveSettings();
+    });
+  });
+
+  // Motion & effects toggles
+  document.getElementById('toggle-idle-float').addEventListener('change', (e) => {
+    idleFloat = e.target.checked;
+    document.documentElement.dataset.idleFloat = idleFloat ? 'on' : 'off';
+    saveSettings();
+  });
+
+  document.getElementById('toggle-idle-glow').addEventListener('change', (e) => {
+    idleGlow = e.target.checked;
+    syncIdleGlow();
+    saveSettings();
+  });
+
+  document.getElementById('toggle-shooting-stars').addEventListener('change', (e) => {
+    shootingStars = e.target.checked;
+    document.documentElement.dataset.shootingStars = shootingStars ? 'on' : 'off';
     saveSettings();
   });
 
   // Reset
   document.getElementById('reset-btn').addEventListener('click', () => {
-    if (!confirm('Reset tile size and animation to defaults?')) return;
-    tileSize  = 'large';
-    bgSpeed   = 'fast';
-    nebulaHue = 0;
+    if (!confirm('Reset all settings to defaults?')) return;
+    tileSize      = 'large';
+    bgSpeed       = 'fast';
+    nebulaHue     = 0;
+    showClock     = false;
+    clockFormat   = '24h';
+    idleFloat     = true;
+    idleGlow      = true;
+    shootingStars = true;
     saveSettings();
     applySettingsToUI();
     buildPages();
   });
+
+  function syncNebulaControls() {
+    const slider = document.getElementById('nebula-hue');
+    if (slider) slider.value = nebulaHue;
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.classList.toggle('active', parseInt(btn.dataset.hue, 10) === nebulaHue);
+    });
+  }
 
   function applySettingsToUI() {
     document.querySelectorAll('.size-btn').forEach(btn => {
@@ -599,15 +694,85 @@
     document.querySelectorAll('.bgspeed-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.bgspeed === bgSpeed);
     });
-    document.documentElement.dataset.bgSpeed = bgSpeed;
+    document.documentElement.dataset.bgSpeed       = bgSpeed;
+    document.documentElement.dataset.idleFloat     = idleFloat ? 'on' : 'off';
+    document.documentElement.dataset.shootingStars = shootingStars ? 'on' : 'off';
+
     applyNebulaHue();
-    const slider = document.getElementById('nebula-hue');
-    if (slider) slider.value = nebulaHue;
+    syncNebulaControls();
+
+    const clockToggle = document.getElementById('toggle-clock');
+    if (clockToggle) clockToggle.checked = showClock;
+    document.querySelectorAll('.clockfmt-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.format === clockFormat);
+    });
+    applyAmbientClock();
+
+    const floatToggle = document.getElementById('toggle-idle-float');
+    if (floatToggle) floatToggle.checked = idleFloat;
+    const glowToggle = document.getElementById('toggle-idle-glow');
+    if (glowToggle) glowToggle.checked = idleGlow;
+    const shootToggle = document.getElementById('toggle-shooting-stars');
+    if (shootToggle) shootToggle.checked = shootingStars;
+    syncIdleGlow();
   }
 
   function applyNebulaHue() {
     document.documentElement.style.setProperty('--nebula-hue', `${nebulaHue}deg`);
   }
+
+  /* ----------------------------------------------------------
+     Ambient clock
+  ---------------------------------------------------------- */
+  let clockTimer = null;
+
+  function renderClock() {
+    const timeEl = document.getElementById('ambient-clock-time');
+    const dateEl = document.getElementById('ambient-clock-date');
+    if (!timeEl || !dateEl) return;
+
+    const now = new Date();
+    timeEl.textContent = now.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: clockFormat === '12h'
+    });
+    const weekday = now.toLocaleDateString([], { weekday: 'short' }).toUpperCase();
+    const day     = String(now.getDate()).padStart(2, '0');
+    const month   = now.toLocaleDateString([], { month: 'short' }).toUpperCase();
+    const year    = now.getFullYear();
+    dateEl.textContent = `${weekday} ${day} ${month} ${year}`;
+  }
+
+  function applyAmbientClock() {
+    const clockEl = document.getElementById('ambient-clock');
+    const fmtGroup = document.getElementById('clock-format-group');
+    if (fmtGroup) fmtGroup.classList.toggle('disabled', !showClock);
+
+    clearInterval(clockTimer);
+    clockTimer = null;
+
+    if (!clockEl) return;
+    clockEl.classList.toggle('visible', showClock);
+    clockEl.setAttribute('aria-hidden', String(!showClock));
+
+    if (showClock) {
+      renderClock();
+      clockTimer = setInterval(renderClock, 1000);
+    }
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (!showClock) return;
+    if (document.hidden) {
+      clearInterval(clockTimer);
+      clockTimer = null;
+    } else {
+      renderClock();
+      clockTimer = setInterval(renderClock, 1000);
+    }
+  });
 
   /* ----------------------------------------------------------
      Icon fallback chain (Clearbit → gstatic → bundled)
@@ -689,41 +854,47 @@
   /* ----------------------------------------------------------
      Idle glow
   ---------------------------------------------------------- */
-  (function setupIdleGlow() {
-    let idleTimer;
-    let glowInterval;
+  let idleTimer    = null;
+  let glowInterval = null;
 
-    function startGlow() {
-      glowInterval = setInterval(() => {
-        // Only pick from tiles on the currently visible page
-        const pages = document.querySelectorAll('.page');
-        const activePage = pages[currentPage];
-        if (!activePage) return;
+  function startGlow() {
+    if (!idleGlow) return;
+    glowInterval = setInterval(() => {
+      if (!idleGlow) return;
+      // Only pick from tiles on the currently visible page
+      const pages = document.querySelectorAll('.page');
+      const activePage = pages[currentPage];
+      if (!activePage) return;
 
-        const tiles = [...activePage.querySelectorAll(
-          '.tile:not(.tile--empty):not(.tile--idle-glow)'
-        )];
-        if (!tiles.length) return;
+      const tiles = [...activePage.querySelectorAll(
+        '.tile:not(.tile--empty):not(.tile--idle-glow)'
+      )];
+      if (!tiles.length) return;
 
-        const tile = tiles[Math.floor(Math.random() * tiles.length)];
-        tile.classList.add('tile--idle-glow');
-        tile.addEventListener('animationend', () => {
-          tile.classList.remove('tile--idle-glow');
-        }, { once: true });
-      }, 1800);
+      const tile = tiles[Math.floor(Math.random() * tiles.length)];
+      tile.classList.add('tile--idle-glow');
+      tile.addEventListener('animationend', () => {
+        tile.classList.remove('tile--idle-glow');
+      }, { once: true });
+    }, 1800);
+  }
+
+  function syncIdleGlow() {
+    clearTimeout(idleTimer);
+    clearInterval(glowInterval);
+    idleTimer    = null;
+    glowInterval = null;
+    if (!idleGlow) {
+      document.querySelectorAll('.tile--idle-glow').forEach(t => t.classList.remove('tile--idle-glow'));
+      return;
     }
+    idleTimer = setTimeout(startGlow, 5000);
+  }
 
-    function resetIdle() {
-      clearTimeout(idleTimer);
-      clearInterval(glowInterval);
-      idleTimer = setTimeout(startGlow, 5000);
-    }
-
-    document.addEventListener('mousemove', resetIdle, { passive: true });
-    document.addEventListener('keydown',   resetIdle, { passive: true });
-    document.addEventListener('wheel',     resetIdle, { passive: true });
-    resetIdle();
-  })();
+  document.addEventListener('mousemove', syncIdleGlow, { passive: true });
+  document.addEventListener('keydown',   syncIdleGlow, { passive: true });
+  document.addEventListener('wheel',     syncIdleGlow, { passive: true });
+  syncIdleGlow();
 
   /* ----------------------------------------------------------
      First-run scroll hint

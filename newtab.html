@@ -23,6 +23,12 @@
   <div class="planet" aria-hidden="true"></div>
   <div class="planet planet--secondary" aria-hidden="true"></div>
 
+  <!-- Ambient clock (optional, toggled in Settings) -->
+  <header id="ambient-clock" class="ambient-clock" aria-hidden="true">
+    <div id="ambient-clock-time" class="ambient-clock__time"></div>
+    <div id="ambient-clock-date" class="ambient-clock__date"></div>
+  </header>
+
   <!-- Layer 2: pages -->
   <main class="main">
     <div id="pages-container" class="pages-container">
@@ -78,8 +84,60 @@
 
       <section class="settings-section">
         <h3>Nebula Colour</h3>
+        <div class="preset-group" role="group" aria-label="Nebula theme presets">
+          <button type="button" class="preset-btn active" data-hue="0" title="Deep Nebula (0°)">
+            <span class="preset-swatch" style="background: linear-gradient(135deg, #8b5cf6, #3b82f6);"></span>
+            Nebula
+          </button>
+          <button type="button" class="preset-btn" data-hue="150" title="Aurora (150°)">
+            <span class="preset-swatch" style="background: linear-gradient(135deg, #10b981, #06b6d4);"></span>
+            Aurora
+          </button>
+          <button type="button" class="preset-btn" data-hue="320" title="Solar Flare (320°)">
+            <span class="preset-swatch" style="background: linear-gradient(135deg, #f43f5e, #f59e0b);"></span>
+            Solar
+          </button>
+          <button type="button" class="preset-btn" data-hue="195" title="Cyber Cyan (195°)">
+            <span class="preset-swatch" style="background: linear-gradient(135deg, #06b6d4, #6366f1);"></span>
+            Cyan
+          </button>
+        </div>
         <input type="range" id="nebula-hue" class="hue-slider"
-               min="0" max="360" value="0" step="2">
+               min="0" max="360" value="0" step="2" aria-label="Nebula hue">
+      </section>
+
+      <section class="settings-section">
+        <h3>Ambient Clock</h3>
+        <label class="toggle-row" for="toggle-clock">
+          <span class="toggle-label">Show Clock &amp; Date</span>
+          <input type="checkbox" id="toggle-clock" class="toggle-input">
+          <span class="toggle-switch" aria-hidden="true"></span>
+        </label>
+        <div id="clock-format-group" class="btn-group clock-format-group">
+          <button type="button" class="clockfmt-btn active" data-format="24h">24-hour</button>
+          <button type="button" class="clockfmt-btn" data-format="12h">12-hour</button>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h3>Motion &amp; Effects</h3>
+        <div class="toggle-list">
+          <label class="toggle-row" for="toggle-idle-float">
+            <span class="toggle-label">Idle Float</span>
+            <input type="checkbox" id="toggle-idle-float" class="toggle-input" checked>
+            <span class="toggle-switch" aria-hidden="true"></span>
+          </label>
+          <label class="toggle-row" for="toggle-idle-glow">
+            <span class="toggle-label">Idle Glow</span>
+            <input type="checkbox" id="toggle-idle-glow" class="toggle-input" checked>
+            <span class="toggle-switch" aria-hidden="true"></span>
+          </label>
+          <label class="toggle-row" for="toggle-shooting-stars">
+            <span class="toggle-label">Shooting Meteors</span>
+            <input type="checkbox" id="toggle-shooting-stars" class="toggle-input" checked>
+            <span class="toggle-switch" aria-hidden="true"></span>
+          </label>
+        </div>
       </section>
 
       <section class="settings-section">
