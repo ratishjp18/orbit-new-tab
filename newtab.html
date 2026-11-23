@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" data-bg-speed="fast">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>New Tab</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
+
 <body>
 
   <!-- Layer 0: starfield -->
@@ -24,7 +26,8 @@
   <div class="planet planet--secondary" aria-hidden="true"></div>
 
   <!-- Ambient clock (optional, toggled in Settings) -->
-  <header id="ambient-clock" class="ambient-clock" aria-hidden="true" tabindex="0" role="button" title="Click to toggle 12-hour / 24-hour format">
+  <header id="ambient-clock" class="ambient-clock" aria-hidden="true" tabindex="0" role="button"
+    title="Click to toggle 12-hour / 24-hour format">
     <div id="ambient-clock-time" class="ambient-clock__time"></div>
     <div id="ambient-clock-date" class="ambient-clock__date"></div>
   </header>
@@ -40,9 +43,9 @@
 
   <!-- Settings toggle -->
   <button id="settings-toggle" class="settings-toggle" aria-label="Open settings" title="Settings">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="3"/>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+      stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="3" />
       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06
                a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09
                A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83
@@ -51,13 +54,12 @@
                l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09
                a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83
                l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09
-               a1.65 1.65 0 0 0-1.51 1z"/>
+               a1.65 1.65 0 0 0-1.51 1z" />
     </svg>
   </button>
 
   <!-- Settings panel -->
-  <aside id="settings-panel" class="settings-panel" role="dialog"
-         aria-label="Settings" aria-modal="true">
+  <aside id="settings-panel" class="settings-panel" role="dialog" aria-label="Settings" aria-modal="true">
     <div class="settings-header">
       <h2>Settings</h2>
       <button id="settings-close" class="settings-close" aria-label="Close settings">&#x2715;</button>
@@ -84,8 +86,8 @@
 
       <section class="settings-section">
         <h3>Nebula Colour</h3>
-        <input type="range" id="nebula-hue" class="hue-slider"
-               min="0" max="360" value="0" step="2" aria-label="Nebula hue">
+        <input type="range" id="nebula-hue" class="hue-slider" min="0" max="360" value="0" step="2"
+          aria-label="Nebula hue">
       </section>
 
       <section class="settings-section">
@@ -115,6 +117,16 @@
             <input type="checkbox" id="toggle-shooting-stars" class="toggle-input" checked>
             <span class="toggle-switch" aria-hidden="true"></span>
           </label>
+          <label class="toggle-row" for="toggle-constellations">
+            <span class="toggle-label">Constellation Lines</span>
+            <input type="checkbox" id="toggle-constellations" class="toggle-input" checked>
+            <span class="toggle-switch" aria-hidden="true"></span>
+          </label>
+          <label class="toggle-row" for="toggle-stardust">
+            <span class="toggle-label">Interactive Stardust &amp; Burst</span>
+            <input type="checkbox" id="toggle-stardust" class="toggle-input" checked>
+            <span class="toggle-switch" aria-hidden="true"></span>
+          </label>
         </div>
       </section>
 
@@ -128,14 +140,13 @@
   <!-- Quick search bar — appears when user starts typing -->
   <div id="quick-search" class="quick-search" role="search" aria-label="Quick search">
     <div class="quick-search__inner">
-      <svg class="quick-search__icon" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
-        <circle cx="11" cy="11" r="8"/>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      <svg class="quick-search__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+        stroke-linecap="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
       </svg>
-      <input id="quick-search-input" class="quick-search__input"
-             type="text" placeholder="Search Google…"
-             autocomplete="off" spellcheck="false">
+      <input id="quick-search-input" class="quick-search__input" type="text" placeholder="Search Google…"
+        autocomplete="off" spellcheck="false">
       <kbd class="quick-search__esc">ESC</kbd>
     </div>
   </div>
@@ -143,4 +154,5 @@
   <script src="js/stars.js"></script>
   <script src="js/app.js"></script>
 </body>
+
 </html>

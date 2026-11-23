@@ -10,11 +10,13 @@ A Chrome extension (Manifest V3) that replaces the new tab page with an animated
 
 ### Space Background
 - Animated starfield — 200 stars drift across the canvas with parallax depth (bigger/closer stars move faster)
+- Drifting nebula clouds — 4 blurred gradient layers drift slowly across the background with 0–360° hue adjustment
+- Constellation Lines — occasional procedural constellations connecting twinkling stars with subtle glowing lines
+- Interactive Stardust & Comet Burst — moving the mouse leaves a soft stardust trail; clicking anywhere on empty space triggers an explosive stardust burst and mini shooting star
 - Twinkling stars — each star fades in and out on its own cycle
-- Shooting meteors — 2 simultaneous comets with random colours (white, blue, violet, gold), firing every 0.5–1.5 s
-- Drifting nebula clouds — 4 blurred gradient layers drift slowly across the background
-- Two faint planets — one purple (bottom-right), one blue (top-left) add depth to the scene
+- Shooting meteors — simultaneous comets firing every 0.5–1.5 s
 - Mouse parallax — stars shift subtly as you move the cursor
+- Ambient Center Clock — shows live time & date; click directly on the clock to toggle between 12-hour and 24-hour formats
 - Pauses when the tab is hidden to save battery
 - Respects `prefers-reduced-motion`
 - Delta-time loop — consistent speed on 60 Hz and 144 Hz screens
@@ -63,6 +65,8 @@ Accessible via the gear icon (appears on hover, bottom-right corner):
 | Tile Size | Medium / Large / X-Large | Large |
 | Background Speed | Slow / Normal / Fast | Fast |
 | Nebula Colour | Hue slider 0–360° | 0° (purple/blue) |
+| Ambient Clock | Toggle Show/Hide (click clock to toggle 12h/24h) | Off (12-hour) |
+| Motion & Effects | Idle Float, Idle Glow, Meteors, Constellations, Stardust | All On |
 
 All settings are saved to `chrome.storage.sync` and sync across Chrome devices.
 
