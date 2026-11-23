@@ -80,7 +80,7 @@
     },
     {
       id: 'github',   name: 'GitHub',
-      url:  'https://github.com',
+      url:  'https://github.com/ratishjp18',
       icon: 'app-icons/github.png',
       glowColor: 'rgba(139, 92, 246, 0.55)'
     },
@@ -616,16 +616,6 @@
     });
   });
 
-  // Nebula theme presets
-  document.querySelectorAll('.preset-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      nebulaHue = parseInt(btn.dataset.hue, 10);
-      applyNebulaHue();
-      syncNebulaControls();
-      saveSettings();
-    });
-  });
-
   // Nebula hue slider
   document.getElementById('nebula-hue').addEventListener('input', (e) => {
     nebulaHue = parseInt(e.target.value, 10);
@@ -689,9 +679,6 @@
   function syncNebulaControls() {
     const slider = document.getElementById('nebula-hue');
     if (slider) slider.value = nebulaHue;
-    document.querySelectorAll('.preset-btn').forEach(btn => {
-      btn.classList.toggle('active', parseInt(btn.dataset.hue, 10) === nebulaHue);
-    });
   }
 
   function applySettingsToUI() {
