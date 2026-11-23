@@ -767,8 +767,7 @@ body:hover .settings-toggle,
 
 .size-btn,
 .speed-btn,
-.bgspeed-btn,
-.clockfmt-btn {
+.bgspeed-btn {
   flex: 1;
   padding: 7px 8px;
   border-radius: 9px;
@@ -783,16 +782,14 @@ body:hover .settings-toggle,
 
 .size-btn:hover,
 .speed-btn:hover,
-.bgspeed-btn:hover,
-.clockfmt-btn:hover {
+.bgspeed-btn:hover {
   background: rgba(255, 255, 255, 0.12);
   color: rgba(255, 255, 255, 0.90);
 }
 
 .size-btn.active,
 .speed-btn.active,
-.bgspeed-btn.active,
-.clockfmt-btn.active {
+.bgspeed-btn.active {
   background: rgba(139, 92, 246, 0.30);
   border-color: rgba(139, 92, 246, 0.55);
   color: white;
@@ -924,12 +921,25 @@ body:hover .settings-toggle,
   pointer-events: none;
   user-select: none;
   opacity: 0;
-  transition: opacity 0.35s ease, transform 0.35s ease;
+  transition: opacity 0.35s ease, transform 0.25s ease;
+  outline: none;
 }
 
 .ambient-clock.visible {
   opacity: 1;
   transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.ambient-clock.visible:hover {
+  transform: translate(-50%, -50%) scale(1.02);
+}
+
+.ambient-clock:focus-visible {
+  outline: 2px solid rgba(139, 92, 246, 0.6);
+  outline-offset: 6px;
+  border-radius: 12px;
 }
 
 .ambient-clock__time {
@@ -1020,15 +1030,6 @@ body:hover .settings-toggle,
 .toggle-input:focus-visible + .toggle-switch {
   outline: 2px solid rgba(139, 92, 246, 0.8);
   outline-offset: 2px;
-}
-
-.clock-format-group {
-  margin-top: 10px;
-}
-
-.clock-format-group.disabled {
-  opacity: 0.4;
-  pointer-events: none;
 }
 
 /* ============================================================

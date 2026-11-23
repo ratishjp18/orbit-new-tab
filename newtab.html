@@ -24,7 +24,7 @@
   <div class="planet planet--secondary" aria-hidden="true"></div>
 
   <!-- Ambient clock (optional, toggled in Settings) -->
-  <header id="ambient-clock" class="ambient-clock" aria-hidden="true">
+  <header id="ambient-clock" class="ambient-clock" aria-hidden="true" tabindex="0" role="button" title="Click to toggle 12-hour / 24-hour format">
     <div id="ambient-clock-time" class="ambient-clock__time"></div>
     <div id="ambient-clock-date" class="ambient-clock__date"></div>
   </header>
@@ -95,10 +95,6 @@
           <input type="checkbox" id="toggle-clock" class="toggle-input">
           <span class="toggle-switch" aria-hidden="true"></span>
         </label>
-        <div id="clock-format-group" class="btn-group clock-format-group">
-          <button type="button" class="clockfmt-btn active" data-format="24h">24-hour</button>
-          <button type="button" class="clockfmt-btn" data-format="12h">12-hour</button>
-        </div>
       </section>
 
       <section class="settings-section">

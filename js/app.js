@@ -210,7 +210,7 @@
   let bgSpeed       = 'fast';
   let nebulaHue     = 0;
   let showClock     = false;
-  let clockFormat   = '24h';
+  let clockFormat   = '12h';
   let idleFloat     = true;
   let idleGlow      = true;
   let shootingStars = true;
@@ -251,7 +251,7 @@
             bgSpeed       = 'fast';
             nebulaHue     = 0;
             showClock     = false;
-            clockFormat   = '24h';
+            clockFormat   = '12h';
             idleFloat     = true;
             idleGlow      = true;
             shootingStars = true;
@@ -263,7 +263,7 @@
             bgSpeed       = data.bgSpeed     || 'fast';
             nebulaHue     = data.nebulaHue   ?? 0;
             showClock     = data.showClock   ?? false;
-            clockFormat   = data.clockFormat || '24h';
+            clockFormat   = data.clockFormat || '12h';
             idleFloat     = data.idleFloat     ?? true;
             idleGlow      = data.idleGlow      ?? true;
             shootingStars = data.shootingStars ?? true;
@@ -631,15 +631,23 @@
     saveSettings();
   });
 
-  document.querySelectorAll('.clockfmt-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      clockFormat = btn.dataset.format;
-      document.querySelectorAll('.clockfmt-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+  // Ambient clock click/keypress to toggle 12h / 24h
+  const ambientClockEl = document.getElementById('ambient-clock');
+  if (ambientClockEl) {
+    ambientClockEl.addEventListener('click', () => {
+      clockFormat = (clockFormat === '12h') ? '24h' : '12h';
       renderClock();
       saveSettings();
     });
-  });
+    ambientClockEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        clockFormat = (clockFormat === '12h') ? '24h' : '12h';
+        renderClock();
+        saveSettings();
+      }
+    });
+  }
 
   // Motion & effects toggles
   document.getElementById('toggle-idle-float').addEventListener('change', (e) => {
@@ -667,7 +675,7 @@
     bgSpeed       = 'fast';
     nebulaHue     = 0;
     showClock     = false;
-    clockFormat   = '24h';
+    clockFormat   = '12h';
     idleFloat     = true;
     idleGlow      = true;
     shootingStars = true;
@@ -697,9 +705,6 @@
 
     const clockToggle = document.getElementById('toggle-clock');
     if (clockToggle) clockToggle.checked = showClock;
-    document.querySelectorAll('.clockfmt-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.format === clockFormat);
-    });
     applyAmbientClock();
 
     const floatToggle = document.getElementById('toggle-idle-float');
@@ -741,8 +746,6 @@
 
   function applyAmbientClock() {
     const clockEl = document.getElementById('ambient-clock');
-    const fmtGroup = document.getElementById('clock-format-group');
-    if (fmtGroup) fmtGroup.classList.toggle('disabled', !showClock);
 
     document.documentElement.dataset.showClock = showClock ? 'on' : 'off';
 
