@@ -80,7 +80,7 @@ On first visit a subtle "↕ Scroll to switch pages" hint appears at the bottom 
 | Page | Row 1 | Row 2 |
 |------|-------|-------|
 | **1** | Google · Gmail · Twitter · ChatGPT · Gemini · Claude | Strava · Speedtest · YouTube · GitHub · Apple Music · Incognito |
-| **2** | JioHotstar · Prime Video · Plex · Apple TV+ · SonyLIV · ZEE5 | Netflix · Flipkart · Amazon · AJIO · Decathlon · The Souled Store |
+| **2** | JioHotstar · Prime Video · Plex · Apple TV+ · SonyLIV · ZEE5 | Netflix · Flipkart · Amazon · AJIO · Myntra · Decathlon |
 | **3** | PVR · District · Proxy · LinkedIn · *(8 empty)* | |
 
 ---

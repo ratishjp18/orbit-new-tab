@@ -165,16 +165,16 @@
       glowColor: 'rgba(220, 38, 38, 0.55)'
     },
     {
+      id: 'myntra', name: 'Myntra',
+      url: 'https://www.myntra.com',
+      icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.myntra.com&size=256',
+      glowColor: 'rgba(255, 60, 100, 0.55)'
+    },
+    {
       id: 'decathlon', name: 'Decathlon',
       url: 'https://www.decathlon.in',
       icon: 'https://logo.clearbit.com/decathlon.in',
       glowColor: 'rgba(0, 130, 200, 0.55)'
-    },
-    {
-      id: 'souledstore', name: 'The Souled Store',
-      url: 'https://www.thesouledstore.com',
-      icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.thesouledstore.com&size=256',
-      glowColor: 'rgba(239, 68, 68, 0.55)'
     },
     // ── Page 3 (slots 1–3; rest are invisible placeholders) ──
     {

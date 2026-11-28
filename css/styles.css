@@ -188,6 +188,300 @@ body {
   filter: blur(4px);
 }
 
+
+/* ============================================================
+   Celestial Scenes (Saturn, Supernova, Black Hole)
+   ============================================================ */
+.celestial-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+[data-theme="saturn"] .celestial-scene,
+[data-theme="supernova"] .celestial-scene,
+[data-theme="blackhole"] .celestial-scene {
+  opacity: 1;
+}
+
+.celestial-body {
+  position: absolute;
+  display: none;
+  pointer-events: none;
+}
+
+[data-theme="saturn"] .saturn-system {
+  display: block;
+}
+
+[data-theme="supernova"] .supernova-system {
+  display: block;
+}
+
+[data-theme="blackhole"] .blackhole-system {
+  display: block;
+}
+
+/* --- Saturn System --- */
+.saturn-system {
+  top: 7vh;
+  right: 12vw;
+  width: 320px;
+  height: 320px;
+  transform: rotate(-24deg);
+  will-change: transform;
+  filter: drop-shadow(0 0 45px rgba(217, 160, 70, 0.22));
+}
+
+.saturn-planet {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 140px;
+  height: 140px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: repeating-linear-gradient(
+    to bottom,
+    #ebd5aa 0px,
+    #cf9e57 8px,
+    #bf8637 14px,
+    #f3e3c3 22px,
+    #9e6c27 30px,
+    #cf9e57 38px
+  );
+  box-shadow:
+    inset -32px -32px 48px rgba(4, 2, 12, 0.92),
+    inset 12px 12px 24px rgba(255, 240, 205, 0.45),
+    0 0 50px rgba(217, 160, 70, 0.25);
+  z-index: 2;
+}
+
+.saturn-rings-back,
+.saturn-rings-front {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 320px;
+  height: 90px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 0%,
+    transparent 43%,
+    rgba(215, 185, 135, 0.65) 48%,
+    rgba(175, 135, 85, 0.82) 58%,
+    rgba(40, 25, 10, 0.85) 61%,
+    rgba(225, 200, 150, 0.75) 63%,
+    rgba(195, 155, 105, 0.50) 72%,
+    transparent 74%
+  );
+  filter: drop-shadow(0 0 10px rgba(215, 185, 135, 0.35));
+}
+
+.saturn-rings-back {
+  z-index: 1;
+  clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
+}
+
+.saturn-rings-front {
+  z-index: 3;
+  clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%);
+}
+
+/* --- Supernova System --- */
+.supernova-system {
+  top: 14vh;
+  left: 18vw;
+  width: 380px;
+  height: 380px;
+  transform: translate(-50%, -50%);
+}
+
+.supernova-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 90px;
+  height: 90px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at center,
+    #ffffff 0%,
+    #fef08a 25%,
+    #f97316 55%,
+    #ef4444 80%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 60px 22px rgba(254, 240, 138, 0.85),
+    0 0 120px 55px rgba(249, 115, 22, 0.55),
+    0 0 200px 90px rgba(220, 38, 38, 0.35);
+  animation: supernovaPulse 3s ease-in-out infinite alternate;
+}
+
+.supernova-shockwave {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 320px;
+  height: 320px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid rgba(254, 215, 170, 0.45);
+  box-shadow:
+    inset 0 0 40px rgba(249, 115, 22, 0.35),
+    0 0 60px rgba(239, 68, 68, 0.30);
+  animation: shockwaveExpand 4.5s ease-out infinite;
+}
+
+.supernova-rays {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 480px;
+  height: 480px;
+  transform: translate(-50%, -50%);
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgba(254, 240, 138, 0.22) 15deg,
+    transparent 35deg,
+    rgba(249, 115, 22, 0.25) 55deg,
+    transparent 85deg,
+    rgba(254, 240, 138, 0.20) 110deg,
+    transparent 140deg,
+    rgba(239, 68, 68, 0.24) 175deg,
+    transparent 210deg,
+    rgba(254, 240, 138, 0.22) 235deg,
+    transparent 265deg,
+    rgba(249, 115, 22, 0.26) 300deg,
+    transparent 340deg,
+    transparent 360deg
+  );
+  border-radius: 50%;
+  filter: blur(8px);
+  animation: supernovaSpin 35s linear infinite;
+}
+
+@keyframes supernovaPulse {
+  0% { transform: translate(-50%, -50%) scale(0.92); opacity: 0.88; }
+  100% { transform: translate(-50%, -50%) scale(1.10); opacity: 1; }
+}
+
+@keyframes shockwaveExpand {
+  0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0.85; }
+  100% { transform: translate(-50%, -50%) scale(1.35); opacity: 0; }
+}
+
+@keyframes supernovaSpin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* --- Black Hole System --- */
+.blackhole-system {
+  top: 25vh;
+  left: 50vw;
+  width: 440px;
+  height: 320px;
+  transform: translate(-50%, -50%);
+}
+
+.blackhole-disk-back,
+.blackhole-disk-front {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 390px;
+  height: 88px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at 40% 50%,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(253, 186, 116, 0.90) 35%,
+    rgba(249, 115, 22, 0.80) 55%,
+    rgba(194, 65, 12, 0.45) 75%,
+    transparent 90%
+  );
+  filter: drop-shadow(0 0 25px rgba(249, 115, 22, 0.85));
+}
+
+.blackhole-disk-back {
+  z-index: 1;
+  clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
+}
+
+.blackhole-disk-front {
+  z-index: 3;
+  clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%);
+}
+
+.blackhole-lensing {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 175px;
+  height: 175px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  box-shadow:
+    0 0 25px 6px rgba(254, 215, 170, 0.95),
+    0 0 55px 16px rgba(249, 115, 22, 0.70),
+    0 0 95px 35px rgba(194, 65, 12, 0.40);
+  z-index: 1;
+  animation: lensingPulse 4s ease-in-out infinite alternate;
+}
+
+.blackhole-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 140px;
+  height: 140px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #000000;
+  box-shadow:
+    0 0 18px 2px rgba(255, 247, 237, 0.85),
+    inset 0 0 20px rgba(0, 0, 0, 1);
+  z-index: 2;
+}
+
+@keyframes lensingPulse {
+  0%   { transform: translate(-50%, -50%) scale(0.97); }
+  100% { transform: translate(-50%, -50%) scale(1.03); }
+}
+
+/* Theme atmosphere adjustments */
+[data-theme="saturn"] .nebula-layer {
+  opacity: 0.35;
+  filter: hue-rotate(30deg);
+}
+[data-theme="supernova"] .nebula-layer {
+  opacity: 0.75;
+  filter: hue-rotate(320deg) saturate(1.4);
+}
+[data-theme="blackhole"] .nebula-layer {
+  opacity: 0.25;
+  filter: hue-rotate(20deg) contrast(1.3);
+}
+
+[data-theme="saturn"] .planet,
+[data-theme="saturn"] .planet--secondary,
+[data-theme="supernova"] .planet,
+[data-theme="supernova"] .planet--secondary,
+[data-theme="blackhole"] .planet,
+[data-theme="blackhole"] .planet--secondary {
+  opacity: 0.18;
+}
+
 /* ============================================================
    Celestial Scenes (Saturn, Supernova, Black Hole)
    ============================================================ */
@@ -1050,40 +1344,6 @@ body:hover .settings-toggle,
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.38);
   margin-bottom: 10px;
-}
-
-/* Celestial theme selector */
-.theme-group {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 6px;
-}
-
-.theme-btn {
-  padding: 8px 10px;
-  border-radius: 9px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  color: rgba(255, 255, 255, 0.65);
-  font-size: 0.75rem;
-  font-family: inherit;
-  cursor: pointer;
-  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-.theme-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.92);
-}
-
-.theme-btn.active {
-  background: rgba(139, 92, 246, 0.30);
-  border-color: rgba(139, 92, 246, 0.60);
-  color: white;
 }
 
 /* Button group */
