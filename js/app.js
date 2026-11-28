@@ -11,10 +11,10 @@
      Constants
   ---------------------------------------------------------- */
   const STORAGE_VERSION = 27;
-  const COLS            = 6;           // columns per page
-  const ROWS            = 2;           // rows per page
-  const PAGE_SIZE       = COLS * ROWS; // 12 slots
-  const P1_COUNT        = 12;          // page 1 completely full
+  const COLS = 6;           // columns per page
+  const ROWS = 2;           // rows per page
+  const PAGE_SIZE = COLS * ROWS; // 12 slots
+  const P1_COUNT = 12;          // page 1 completely full
 
   /* ----------------------------------------------------------
      Page 1 — fixed positions (explicit order)
@@ -24,69 +24,69 @@
   const PAGE1_APPS = [
     // ── Row 1 ──────────────────────────────────────────────
     {
-      id: 'google',   name: 'Google',
-      url:  'https://www.google.com',
+      id: 'google', name: 'Google',
+      url: 'https://www.google.com',
       icon: 'https://logo.clearbit.com/google.com',
       glowColor: 'rgba(66, 133, 244, 0.55)'
     },
     {
-      id: 'gmail',    name: 'Gmail',
-      url:  'https://mail.google.com',
+      id: 'gmail', name: 'Gmail',
+      url: 'https://mail.google.com',
       icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://mail.google.com&size=256',
       glowColor: 'rgba(234, 67, 53, 0.55)'
     },
     {
-      id: 'twitter',  name: 'Twitter',
-      url:  'https://x.com',
+      id: 'twitter', name: 'Twitter',
+      url: 'https://x.com',
       icon: 'https://logo.clearbit.com/x.com',
       glowColor: 'rgba(200, 200, 200, 0.40)'
     },
     {
-      id: 'chatgpt',  name: 'ChatGPT',
-      url:  'https://chat.openai.com',
+      id: 'chatgpt', name: 'ChatGPT',
+      url: 'https://chat.openai.com',
       icon: 'app-icons/chatgpt-logo-chat-gpt-icon-on-black-background-free-vector.jpg',
       glowColor: 'rgba(16, 163, 127, 0.55)'
     },
     {
-      id: 'gemini',   name: 'Gemini',
-      url:  'https://gemini.google.com',
+      id: 'gemini', name: 'Gemini',
+      url: 'https://gemini.google.com',
       icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://gemini.google.com&size=256',
       glowColor: 'rgba(66, 133, 244, 0.55)'
     },
     {
-      id: 'claude',   name: 'Claude',
-      url:  'https://claude.ai',
+      id: 'claude', name: 'Claude',
+      url: 'https://claude.ai',
       icon: 'app-icons/claude.jpg',
       glowColor: 'rgba(212, 107, 64, 0.55)'
     },
     // ── Row 2 ──────────────────────────────────────────────
     {
-      id: 'strava',   name: 'Strava',
-      url:  'https://www.strava.com/dashboard',
+      id: 'strava', name: 'Strava',
+      url: 'https://www.strava.com/dashboard',
       icon: 'app-icons/strava.png',
       glowColor: 'rgba(252, 76, 2, 0.55)'
     },
     {
       id: 'speedtest', name: 'Speedtest',
-      url:  'https://www.speedtest.net/',
+      url: 'https://www.speedtest.net/',
       icon: 'app-icons/speedtest.png',
       glowColor: 'rgba(0, 185, 150, 0.55)'
     },
     {
-      id: 'youtube',  name: 'YouTube',
-      url:  'https://www.youtube.com',
+      id: 'youtube', name: 'YouTube',
+      url: 'https://www.youtube.com',
       icon: 'https://logo.clearbit.com/youtube.com',
       glowColor: 'rgba(255, 48, 48, 0.55)'
     },
     {
-      id: 'github',   name: 'GitHub',
-      url:  'https://github.com/ratishjp18',
+      id: 'github', name: 'GitHub',
+      url: 'https://github.com/ratishjp18',
       icon: 'app-icons/github.png',
       glowColor: 'rgba(139, 92, 246, 0.55)'
     },
     {
       id: 'applemusic', name: 'Apple Music',
-      url:  'https://music.apple.com',
+      url: 'https://music.apple.com',
       icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://music.apple.com&size=256',
       glowColor: 'rgba(252, 60, 68, 0.55)'
     },
@@ -104,100 +104,100 @@
   const OVERFLOW_APPS = [
     // ── Page 2, Row 1: OTT streaming ─────────────────────────
     {
-      id: 'hotstar',  name: 'JioHotstar',
-      url:  'https://www.jiohotstar.com',
+      id: 'hotstar', name: 'JioHotstar',
+      url: 'https://www.jiohotstar.com',
       icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.jiohotstar.com&size=256',
       glowColor: 'rgba(59, 130, 246, 0.55)'
     },
     {
-      id: 'prime',    name: 'Prime Video',
-      url:  'https://www.primevideo.com',
+      id: 'prime', name: 'Prime Video',
+      url: 'https://www.primevideo.com',
       icon: 'https://logo.clearbit.com/primevideo.com',
       glowColor: 'rgba(0, 168, 225, 0.55)'
     },
     {
-      id: 'plex',     name: 'Plex',
-      url:  'https://app.plex.tv/desktop/#!/',
+      id: 'plex', name: 'Plex',
+      url: 'https://app.plex.tv/desktop/#!/',
       icon: 'app-icons/images.jpeg',
       glowColor: 'rgba(229, 160, 13, 0.55)'
     },
     {
-      id: 'appletv',  name: 'Apple TV+',
-      url:  'https://tv.apple.com',
+      id: 'appletv', name: 'Apple TV+',
+      url: 'https://tv.apple.com',
       icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://tv.apple.com&size=256',
       glowColor: 'rgba(255, 255, 255, 0.35)'
     },
     {
-      id: 'sonyliv',  name: 'SonyLIV',
-      url:  'https://www.sonyliv.com',
+      id: 'sonyliv', name: 'SonyLIV',
+      url: 'https://www.sonyliv.com',
       icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.sonyliv.com&size=256',
       glowColor: 'rgba(0, 112, 206, 0.55)'
     },
     {
-      id: 'zee5',     name: 'ZEE5',
-      url:  'https://www.zee5.com',
+      id: 'zee5', name: 'ZEE5',
+      url: 'https://www.zee5.com',
       icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.zee5.com&size=256',
       glowColor: 'rgba(100, 28, 161, 0.55)'
     },
     // ── Page 2, Row 2: Netflix + Shopping ────────────────────
     {
-      id: 'netflix',     name: 'Netflix',
-      url:  'https://www.netflix.com',
+      id: 'netflix', name: 'Netflix',
+      url: 'https://www.netflix.com',
       icon: 'https://logo.clearbit.com/netflix.com',
       glowColor: 'rgba(229, 9, 20, 0.55)'
     },
     {
-      id: 'flipkart',    name: 'Flipkart',
-      url:  'https://www.flipkart.com',
+      id: 'flipkart', name: 'Flipkart',
+      url: 'https://www.flipkart.com',
       icon: 'app-icons/flipkart.png',
       glowColor: 'rgba(247, 148, 30, 0.55)'
     },
     {
-      id: 'amazon',      name: 'Amazon',
-      url:  'https://www.amazon.in',
+      id: 'amazon', name: 'Amazon',
+      url: 'https://www.amazon.in',
       icon: 'app-icons/amazon.png',
       glowColor: 'rgba(255, 153, 0, 0.55)'
     },
     {
-      id: 'ajio',        name: 'AJIO',
-      url:  'https://www.ajio.com',
+      id: 'ajio', name: 'AJIO',
+      url: 'https://www.ajio.com',
       icon: 'app-icons/ajio.jpg',
       glowColor: 'rgba(220, 38, 38, 0.55)'
     },
     {
-      id: 'decathlon',   name: 'Decathlon',
-      url:  'https://www.decathlon.in',
+      id: 'myntra', name: 'Myntra',
+      url: 'https://www.myntra.com',
+      icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.myntra.com&size=256',
+      glowColor: 'rgba(255, 60, 100, 0.55)'
+    },
+    {
+      id: 'decathlon', name: 'Decathlon',
+      url: 'https://www.decathlon.in',
       icon: 'https://logo.clearbit.com/decathlon.in',
       glowColor: 'rgba(0, 130, 200, 0.55)'
     },
-    {
-      id: 'souledstore', name: 'The Souled Store',
-      url:  'https://www.thesouledstore.com',
-      icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.thesouledstore.com&size=256',
-      glowColor: 'rgba(239, 68, 68, 0.55)'
-    },
     // ── Page 3 (slots 1–3; rest are invisible placeholders) ──
     {
-      id: 'pvr',      name: 'PVR Cinemas',
-      url:  'https://www.pvrcinemas.com',
+      id: 'pvr', name: 'PVR Cinemas',
+      url: 'https://www.pvrcinemas.com',
       icon: 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.pvrcinemas.com&size=256',
       glowColor: 'rgba(220, 38, 38, 0.55)'
     },
     {
       id: 'district', name: 'District',
-      url:  'https://www.district.in/',
+      url: 'https://www.district.in/',
       icon: 'app-icons/district.jpg',
       glowColor: 'rgba(147, 51, 234, 0.60)'
     },
     {
-      id: 'proxy',    name: 'Proxy',
-      url:  'https://www.proxysite.com',
+      id: 'proxy', name: 'Proxy',
+      url: 'https://www.proxysite.com',
       icon: 'app-icons/proxy.svg',
       glowColor: 'rgba(67, 56, 202, 0.60)'
     },
     {
       id: 'linkedin', name: 'LinkedIn',
-      url:  'https://www.linkedin.com/',
+      url: 'https://www.linkedin.com/',
       icon: 'https://logo.clearbit.com/linkedin.com',
       glowColor: 'rgba(10, 102, 194, 0.55)'
     }
@@ -206,18 +206,20 @@
   /* ----------------------------------------------------------
      State
   ---------------------------------------------------------- */
-  let tileSize      = 'large';
-  let bgSpeed       = 'fast';
-  let nebulaHue     = 0;
-  let showClock     = false;
-  let clockFormat   = '12h';
-  let idleFloat     = true;
-  let idleGlow      = true;
+  let tileSize = 'large';
+  let bgSpeed = 'fast';
+  let nebulaHue = 0;
+  let showClock = false;
+  let clockFormat = '12h';
+  let idleFloat = true;
+  let idleGlow = true;
   let shootingStars = true;
-  let currentPage     = 0;
-  let totalPages      = 0;
+  let constellations = true;
+  let stardust = true;
+  let currentPage = 0;
+  let totalPages = 0;
   let isTransitioning = false;
-  let navCooldown     = false;
+  let navCooldown = false;
 
   /* ----------------------------------------------------------
      Storage
@@ -225,6 +227,7 @@
   const SETTINGS_KEYS = [
     'tileSize', 'bgSpeed', 'nebulaHue',
     'showClock', 'clockFormat', 'idleFloat', 'idleGlow', 'shootingStars',
+    'constellations', 'stardust',
     'storageVersion'
   ];
 
@@ -238,6 +241,8 @@
       idleFloat,
       idleGlow,
       shootingStars,
+      constellations,
+      stardust,
       storageVersion: STORAGE_VERSION
     };
   }
@@ -247,26 +252,30 @@
       if (typeof chrome !== 'undefined' && chrome.storage) {
         chrome.storage.sync.get(SETTINGS_KEYS, (data) => {
           if (data.storageVersion !== STORAGE_VERSION) {
-            tileSize      = 'large';
-            bgSpeed       = 'fast';
-            nebulaHue     = 0;
-            showClock     = false;
-            clockFormat   = '12h';
-            idleFloat     = true;
-            idleGlow      = true;
+            tileSize = 'large';
+            bgSpeed = 'fast';
+            nebulaHue = 0;
+            showClock = false;
+            clockFormat = '12h';
+            idleFloat = true;
+            idleGlow = true;
             shootingStars = true;
+            constellations = true;
+            stardust = true;
             chrome.storage.sync.clear(() => {
               chrome.storage.sync.set(currentSettingsPayload());
             });
           } else {
-            tileSize      = data.tileSize    || 'large';
-            bgSpeed       = data.bgSpeed     || 'fast';
-            nebulaHue     = data.nebulaHue   ?? 0;
-            showClock     = data.showClock   ?? false;
-            clockFormat   = data.clockFormat || '12h';
-            idleFloat     = data.idleFloat     ?? true;
-            idleGlow      = data.idleGlow      ?? true;
+            tileSize = data.tileSize || 'large';
+            bgSpeed = data.bgSpeed || 'fast';
+            nebulaHue = data.nebulaHue ?? 0;
+            showClock = data.showClock ?? false;
+            clockFormat = data.clockFormat || '12h';
+            idleFloat = data.idleFloat ?? true;
+            idleGlow = data.idleGlow ?? true;
             shootingStars = data.shootingStars ?? true;
+            constellations = data.constellations ?? true;
+            stardust = data.stardust ?? true;
           }
           resolve();
         });
@@ -292,7 +301,7 @@
     const track = document.getElementById('pages-track');
     track.innerHTML = '';
     track.style.transition = 'none';
-    track.style.transform  = 'translateY(0)';
+    track.style.transform = 'translateY(0)';
 
     // Page 1: 9 apps + 3 invisible empty slots
     track.appendChild(createPageEl(PAGE1_APPS, PAGE_SIZE - P1_COUNT, 0));
@@ -346,13 +355,13 @@
   ---------------------------------------------------------- */
   function createTileEl(app, index) {
     // Wave stagger: centre columns animate first, edges last
-    const col            = index % COLS;
-    const row            = Math.floor(index / COLS);
+    const col = index % COLS;
+    const row = Math.floor(index / COLS);
     const distFromCentre = Math.abs(col - (COLS - 1) / 2);
-    const delay          = `${Math.round(distFromCentre * 50 + row * 90)}ms`;
+    const delay = `${Math.round(distFromCentre * 50 + row * 90)}ms`;
 
     // Unique idle float period + phase per tile for a natural feel
-    const floatDur   = (3.0 + (index * 0.31 % 1.8)).toFixed(2);
+    const floatDur = (3.0 + (index * 0.31 % 1.8)).toFixed(2);
     const floatDelay = (index * 0.43 % 4.0).toFixed(2);
 
     // ── Incognito special tile ──────────────────────────────
@@ -361,7 +370,7 @@
       tile.className = 'tile';
       tile.style.setProperty('--glow-color', app.glowColor);
       tile.style.animationDelay = delay;
-      tile.style.setProperty('--float-dur',   `${floatDur}s`);
+      tile.style.setProperty('--float-dur', `${floatDur}s`);
       tile.style.setProperty('--float-delay', `${floatDelay}s`);
       tile.setAttribute('role', 'button');
       tile.setAttribute('tabindex', '0');
@@ -391,15 +400,15 @@
     // ── Regular app tile ────────────────────────────────────
     const tile = document.createElement('a');
     tile.className = 'tile';
-    tile.href      = app.url;
+    tile.href = app.url;
     tile.style.setProperty('--glow-color', app.glowColor);
     tile.style.animationDelay = delay;
-    tile.style.setProperty('--float-dur',   `${floatDur}s`);
+    tile.style.setProperty('--float-dur', `${floatDur}s`);
     tile.style.setProperty('--float-delay', `${floatDelay}s`);
     tile.setAttribute('aria-label', app.name);
 
-    const domain    = getDomain(app.url);
-    const iconSrc   = app.icon || `https://logo.clearbit.com/${domain}`;
+    const domain = getDomain(app.url);
+    const iconSrc = app.icon || `https://logo.clearbit.com/${domain}`;
     const fallback1 = `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${domain}&size=256`;
 
     tile.innerHTML = `
@@ -435,14 +444,14 @@
       track.style.opacity = '0';
       setTimeout(() => {
         track.style.transition = 'none';
-        track.style.transform  = `translateY(${-index * 100}vh)`;
+        track.style.transform = `translateY(${-index * 100}vh)`;
         currentPage = index;
         updatePageDots();
         void track.getBoundingClientRect();
         track.style.transition = 'opacity 0.18s ease';
-        track.style.opacity    = '1';
+        track.style.opacity = '1';
         setTimeout(() => {
-          track.style.opacity    = '';
+          track.style.opacity = '';
           track.style.transition = '';
           isTransitioning = false;
           navCooldown = false;
@@ -508,8 +517,8 @@
 
     // Keyboard arrows / page keys
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); navigate(1);  }
-      if (e.key === 'ArrowUp'   || e.key === 'PageUp')   { e.preventDefault(); navigate(-1); }
+      if (e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); navigate(1); }
+      if (e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); navigate(-1); }
       // Ctrl+1 / Ctrl+2 / … — jump directly to a page
       if (e.ctrlKey && e.key >= '1' && e.key <= '9') {
         e.preventDefault();
@@ -562,10 +571,10 @@
      Settings panel
   ---------------------------------------------------------- */
   const settingsToggle = document.getElementById('settings-toggle');
-  const settingsPanel  = document.getElementById('settings-panel');
-  const settingsClose  = document.getElementById('settings-close');
+  const settingsPanel = document.getElementById('settings-panel');
+  const settingsClose = document.getElementById('settings-close');
 
-  function openPanel()  {
+  function openPanel() {
     settingsPanel.classList.add('open');
     settingsToggle.classList.add('panel-open');
     settingsToggle.setAttribute('aria-expanded', 'true');
@@ -668,17 +677,31 @@
     saveSettings();
   });
 
+  document.getElementById('toggle-constellations').addEventListener('change', (e) => {
+    constellations = e.target.checked;
+    document.documentElement.dataset.constellations = constellations ? 'on' : 'off';
+    saveSettings();
+  });
+
+  document.getElementById('toggle-stardust').addEventListener('change', (e) => {
+    stardust = e.target.checked;
+    document.documentElement.dataset.stardust = stardust ? 'on' : 'off';
+    saveSettings();
+  });
+
   // Reset
   document.getElementById('reset-btn').addEventListener('click', () => {
     if (!confirm('Reset all settings to defaults?')) return;
-    tileSize      = 'large';
-    bgSpeed       = 'fast';
-    nebulaHue     = 0;
-    showClock     = false;
-    clockFormat   = '12h';
-    idleFloat     = true;
-    idleGlow      = true;
+    tileSize = 'large';
+    bgSpeed = 'fast';
+    nebulaHue = 0;
+    showClock = false;
+    clockFormat = '12h';
+    idleFloat = true;
+    idleGlow = true;
     shootingStars = true;
+    constellations = true;
+    stardust = true;
     saveSettings();
     applySettingsToUI();
     buildPages();
@@ -696,9 +719,11 @@
     document.querySelectorAll('.bgspeed-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.bgspeed === bgSpeed);
     });
-    document.documentElement.dataset.bgSpeed       = bgSpeed;
-    document.documentElement.dataset.idleFloat     = idleFloat ? 'on' : 'off';
+    document.documentElement.dataset.bgSpeed = bgSpeed;
+    document.documentElement.dataset.idleFloat = idleFloat ? 'on' : 'off';
     document.documentElement.dataset.shootingStars = shootingStars ? 'on' : 'off';
+    document.documentElement.dataset.constellations = constellations ? 'on' : 'off';
+    document.documentElement.dataset.stardust = stardust ? 'on' : 'off';
 
     applyNebulaHue();
     syncNebulaControls();
@@ -713,6 +738,10 @@
     if (glowToggle) glowToggle.checked = idleGlow;
     const shootToggle = document.getElementById('toggle-shooting-stars');
     if (shootToggle) shootToggle.checked = shootingStars;
+    const constToggle = document.getElementById('toggle-constellations');
+    if (constToggle) constToggle.checked = constellations;
+    const dustToggle = document.getElementById('toggle-stardust');
+    if (dustToggle) dustToggle.checked = stardust;
     syncIdleGlow();
   }
 
@@ -738,9 +767,9 @@
       hour12: clockFormat === '12h'
     });
     const weekday = now.toLocaleDateString([], { weekday: 'short' }).toUpperCase();
-    const day     = String(now.getDate()).padStart(2, '0');
-    const month   = now.toLocaleDateString([], { month: 'short' }).toUpperCase();
-    const year    = now.getFullYear();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = now.toLocaleDateString([], { month: 'short' }).toUpperCase();
+    const year = now.getFullYear();
     dateEl.textContent = `${weekday} ${day} ${month} ${year}`;
   }
 
@@ -812,7 +841,7 @@
   ---------------------------------------------------------- */
   (function setupQuickSearch() {
     const overlay = document.getElementById('quick-search');
-    const input   = document.getElementById('quick-search-input');
+    const input = document.getElementById('quick-search-input');
 
     function openSearch(char) {
       overlay.classList.add('visible');
@@ -841,8 +870,8 @@
     });
 
     input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter')  { e.preventDefault(); submitSearch(); }
-      if (e.key === 'Escape') { e.preventDefault(); closeSearch();  }
+      if (e.key === 'Enter') { e.preventDefault(); submitSearch(); }
+      if (e.key === 'Escape') { e.preventDefault(); closeSearch(); }
     });
 
     overlay.addEventListener('click', (e) => {
@@ -853,7 +882,7 @@
   /* ----------------------------------------------------------
      Idle glow
   ---------------------------------------------------------- */
-  let idleTimer    = null;
+  let idleTimer = null;
   let glowInterval = null;
 
   function startGlow() {
@@ -881,7 +910,7 @@
   function syncIdleGlow() {
     clearTimeout(idleTimer);
     clearInterval(glowInterval);
-    idleTimer    = null;
+    idleTimer = null;
     glowInterval = null;
     if (!idleGlow) {
       document.querySelectorAll('.tile--idle-glow').forEach(t => t.classList.remove('tile--idle-glow'));
@@ -891,8 +920,8 @@
   }
 
   document.addEventListener('mousemove', syncIdleGlow, { passive: true });
-  document.addEventListener('keydown',   syncIdleGlow, { passive: true });
-  document.addEventListener('wheel',     syncIdleGlow, { passive: true });
+  document.addEventListener('keydown', syncIdleGlow, { passive: true });
+  document.addEventListener('wheel', syncIdleGlow, { passive: true });
   syncIdleGlow();
 
   /* ----------------------------------------------------------
