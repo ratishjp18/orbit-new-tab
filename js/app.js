@@ -216,6 +216,7 @@
   let shootingStars = true;
   let constellations = true;
   let stardust = true;
+  let showLabels = false;
   let currentPage = 0;
   let totalPages = 0;
   let isTransitioning = false;
@@ -227,7 +228,7 @@
   const SETTINGS_KEYS = [
     'tileSize', 'bgSpeed', 'nebulaHue',
     'showClock', 'clockFormat', 'idleFloat', 'idleGlow', 'shootingStars',
-    'constellations', 'stardust',
+    'constellations', 'stardust', 'showLabels',
     'storageVersion'
   ];
 
@@ -243,6 +244,7 @@
       shootingStars,
       constellations,
       stardust,
+      showLabels,
       storageVersion: STORAGE_VERSION
     };
   }
@@ -262,6 +264,7 @@
             shootingStars = true;
             constellations = true;
             stardust = true;
+            showLabels = false;
             chrome.storage.sync.clear(() => {
               chrome.storage.sync.set(currentSettingsPayload());
             });
@@ -276,6 +279,7 @@
             shootingStars = data.shootingStars ?? true;
             constellations = data.constellations ?? true;
             stardust = data.stardust ?? true;
+            showLabels = data.showLabels ?? false;
           }
           resolve();
         });
@@ -689,6 +693,12 @@
     saveSettings();
   });
 
+  document.getElementById('toggle-labels').addEventListener('change', (e) => {
+    showLabels = e.target.checked;
+    document.documentElement.dataset.showLabels = showLabels ? 'on' : 'off';
+    saveSettings();
+  });
+
   // Reset
   document.getElementById('reset-btn').addEventListener('click', () => {
     if (!confirm('Reset all settings to defaults?')) return;
@@ -702,6 +712,7 @@
     shootingStars = true;
     constellations = true;
     stardust = true;
+    showLabels = false;
     saveSettings();
     applySettingsToUI();
     buildPages();
@@ -724,6 +735,7 @@
     document.documentElement.dataset.shootingStars = shootingStars ? 'on' : 'off';
     document.documentElement.dataset.constellations = constellations ? 'on' : 'off';
     document.documentElement.dataset.stardust = stardust ? 'on' : 'off';
+    document.documentElement.dataset.showLabels = showLabels ? 'on' : 'off';
 
     applyNebulaHue();
     syncNebulaControls();
@@ -742,6 +754,8 @@
     if (constToggle) constToggle.checked = constellations;
     const dustToggle = document.getElementById('toggle-stardust');
     if (dustToggle) dustToggle.checked = stardust;
+    const labelsToggle = document.getElementById('toggle-labels');
+    if (labelsToggle) labelsToggle.checked = showLabels;
     syncIdleGlow();
   }
 

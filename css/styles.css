@@ -652,6 +652,13 @@ html[data-idle-float="off"] .tile__icon-wrap {
   z-index: 20;
 }
 
+html[data-show-labels='on'] .tile__tooltip {
+  top: calc(50% + var(--icon-size, 68px) / 2 + 6px);
+  bottom: auto;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 .tile:hover .tile__tooltip {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
